@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Tareas</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+</head>
+<body>
+    <div class="site-wrapper">
+    <header>
+        <h2>Bienvenido, <span th:text="${userName}">Estudiante</span></h2>
+        <nav>
+            <a th:href="@{/create-task}">Nueva Tarea</a>
+            <form th:action="@{/logout}" method="post" style="display: inline;">
+                <button type="submit" class="logout-btn" style="background:none;border:none;cursor:pointer;color:var(--muted);">Cerrar sesión</button>
+            </form>
+        </nav>
+    </header>
+    <main>
+        <h3>Mis Tareas</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Título</th>
+                    <th>Fecha de entrega</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="tasksTableBody">
+                <!-- Las tareas se cargarán dinámicamente con JavaScript -->
+            </tbody>
+        </table>
+    </main>
+    <script th:src="@{/js/main.js}"></script>
+    </div>
+</body>
+</html>

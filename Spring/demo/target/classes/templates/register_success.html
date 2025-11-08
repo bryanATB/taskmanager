@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="ISO-8859-1">
+<title>Registration Success</title>
+<style type="text/css">
+    span {
+        display: inline-block;
+        width: 200px;
+        text-align: left;
+    }
+</style>
+</head>
+<body>
+<div align="center">
+    <h2>¡Registro exitoso!</h2>
+    <span>Nombre completo:</span><span th:text="${user.name}"></span><br/>
+    <span>Correo electrónico:</span><span th:text="${user.email}"></span><br/>
+    <span>Contraseña:</span><span th:text="${user.password}"></span><br/>
+    <span>Género:</span><span th:text="${user.gender}"></span><br/>
+    <span>Profesión:</span><span th:text="${user.profession}"></span><br/>
+    <span>Casado?</span><span th:text="${user.married}"></span><br/>
+    <span>Nota:</span><span th:text="${user.note}"></span><br/>
+</div>
+</body>
+</html>

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Registro de Usuario</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        h2 {
+            text-align: center;
+        }
+        form {
+            width: 400px;
+            margin: auto;
+        }
+        label {
+            display: inline-block;
+            width: 150px;
+            margin-top: 10px;
+        }
+        input, select, textarea {
+            width: 200px;
+            padding: 5px;
+            margin-top: 5px;
+        }
+        .boton {
+            text-align: center;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h2>Registro de Usuario</h2>
+    <form th:action="@{/procesar}" th:object="${user}" method="post">
+        <label>Nombre completo:</label>
+        <input type="text" th:field="*{name}" /><br/>
+
+        <label>Correo electrónico:</label>
+        <input type="email" th:field="*{email}" /><br/>
+
+        <label>Contraseña:</label>
+        <input type="password" th:field="*{password}" /><br/>
+
+        <label>Fecha de nacimiento:</label>
+        <input type="date" th:field="*{birthday}" /><br/>
+
+        <label>Género:</label>
+        <input type="radio" th:field="*{gender}" value="Masculino"/> Masculino
+        <input type="radio" th:field="*{gender}" value="Femenino"/> Femenino<br/>
+
+        <label>Profesión:</label>
+        <select th:field="*{profession}">
+            <option th:each="profesion : ${listProfession}" 
+                    th:value="${profesion}" 
+                    th:text="${profesion}"></option>
+        </select><br/>
+
+        <label>¿Casado?</label>
+        <input type="checkbox" th:field="*{married}" /><br/>
+
+        <label>Nota:</label>
+        <textarea rows="5" th:field="*{note}"></textarea><br/>
+
+        <div class="boton">
+            <button type="submit">Registrar</button>
+        </div>
+    </form>
+</body>
+</html>

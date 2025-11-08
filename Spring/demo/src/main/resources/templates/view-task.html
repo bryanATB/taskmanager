@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ver Tarea - Gestión de Tareas</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+    <div class="site-wrapper">
+        <header>
+            <h2>Detalles de la Tarea</h2>
+            <nav>
+                <a th:href="@{/dashboard}" class="btn btn-ghost">Volver al Dashboard</a>
+                <a th:href="@{/edit-task/{id}(id=${task.id})}" class="btn">Editar Tarea</a>
+            </nav>
+        </header>
+        <main>
+            <div class="form-container">
+                <div class="task-details">
+                    <h3 th:text="${task.title}">Título de la Tarea</h3>
+                    
+                    <div class="detail-group">
+                        <label>Descripción</label>
+                        <p th:text="${task.description}">Descripción de la tarea</p>
+                    </div>
+
+                    <div class="detail-group">
+                        <label>Fecha de Entrega</label>
+                        <p th:text="${task.dueDate != null ? #dates.format(task.dueDate, 'dd/MM/yyyy HH:mm') : 'No establecida'}">Fecha</p>
+                    </div>
+
+                    <div class="detail-group">
+                        <label>Estado</label>
+                        <p th:text="${task.status}">Estado</p>
+                    </div>
+
+                    <div class="detail-group">
+                        <label>Prioridad</label>
+                        <p th:text="${task.priority}">Prioridad</p>
+                    </div>
+
+
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>
