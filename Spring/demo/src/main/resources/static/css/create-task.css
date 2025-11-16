@@ -1,0 +1,74 @@
+body{
+    margin:0;
+    font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+    background-color: #f0f0f0;
+    color:#111827;
+    height: 100vh;
+    display: flex;
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap');
+
+.lateral {
+    height: 614px;
+    width: 190px; 
+    background-color: rgb(0, 51, 0, 1);
+    padding: 20px 10px;
+}
+
+h2 {
+    color: white;
+    position: relative;
+    bottom: 10px;
+    left: 10px;
+}
+
+.btns {
+    display: block;
+    width: 150px;
+    padding: 10px 15px;
+    margin: 20px auto;
+    color: white;
+    text-decoration: none;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s ease;
+}
+
+.btns:hover {
+    background-color: #66d6c2;
+}
+
+.btn-cerrar {
+    position: relative;
+    top: 250px;
+    left: 15px;
+    padding: 10px 15px;
+    margin: 20px auto;
+    font-size: 16px;
+    border-radius: 10px;
+    border: none;
+    outline: none;
+    box-shadow: none;
+    background: none;
+    color: white;
+    cursor: pointer;
+    transition: 0.3s ease;
+}
+
+.btn-cerrar:hover {
+    background-color: #ff4d4d;
+    padding: 10px 15px;
+    margin: 20px auto;
+}
+
+.menu {
+    background-color: #f5f5f5;
+    position: absolute;
+    left : 250px;
+    top: 80px;
+    height: 540px;
+    width: 1030px;
+    border-radius: 20px;
+}

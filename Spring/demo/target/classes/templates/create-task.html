@@ -4,38 +4,45 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nueva Tarea - Gestión de Tareas</title>
-    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <link rel="stylesheet" th:href="@{/css/create-task.css}">
     <meta name="_csrf" th:content="${_csrf.token}"/>
     <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
 </head>
 <body>
-    <div class="site-wrapper">
-        <header>
-            <h2>Nueva Tarea</h2>
-            <nav>
-                <a th:href="@{/dashboard}" class="btn btn-ghost">Volver al Dashboard</a>
-            </nav>
-        </header>
         <main>
-            <div class="form-container">
+
+            <div class="lateral">
+                <h2><span th:text="${userName}">Usuario</span></h2>
+                    <a th:href="@{/dashboard}" class="btns">Inicio</a>
+                    <a th:href="@{/create-task}" class="btns">Nueva Tarea</a>
+                    <a href="" class="btns">Categoria</a>
+                    <a href="" class="btns">Historial</a>
+                
+                    <form th:action="@{/logout}" method="post" style="display: inline;">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                        <button type="submit" class="btn-cerrar">Cerrar sesión</button>
+                    </form>
+            </div>
+
+            <div class="menu">
                 <form action="/save-task" method="POST" id="taskForm">
                     <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                     
                     <div class="form-group">
                         <label for="title">Título *</label>
                         <input type="text" id="title" name="title" required
-                               placeholder="Ingresa el título de la tarea">
+                               placeholder="Ej: Completar informe mensual">
                     </div>
 
                     <div class="form-group">
                         <label for="description">Descripción</label>
                         <textarea id="description" name="description" rows="4"
-                                placeholder="Describe los detalles de la tarea"></textarea>
+                                placeholder="Describe los detalles de la tarea..."></textarea>
                     </div>
 
                     <div class="form-group">
                         <label for="dueDate">Fecha de entrega</label>
-                        <input type="datetime-local" id="dueDate" name="dueDate">
+                        <input type="date" id="dueDate" name="dueDate">
                     </div>
 
                     <div class="form-group">
@@ -60,7 +67,6 @@
                 </form>
             </div>
         </main>
-    </div>
     <script th:src="@{/js/main.js}"></script>
 </body>
 </html>

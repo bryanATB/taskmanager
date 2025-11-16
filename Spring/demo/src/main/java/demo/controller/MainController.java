@@ -4,10 +4,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
 
 import demo.UserService;
-import demo.model.User;
+import demo.model.Usuario;
 
 @Controller
 public class MainController {
@@ -22,22 +24,21 @@ public class MainController {
 
     @GetMapping("/register")
     public String showRegistrationForm(Model model) {
-        model.addAttribute("user", new User());
+        model.addAttribute("user", new Usuario());
         return "register";
     }
 
     @PostMapping("/register")
-    public String registerUser(@ModelAttribute User user) {
-        // Asignar rol de usuario por defecto
-        user.setRole("USER");
-        userService.registerUser(user);
+    public String registerUser(@ModelAttribute Usuario usuario) {
+        usuario.setRole("USER");
+        userService.registerUser(usuario);
         return "redirect:/?registered";
     }
 
     @GetMapping("/dashboard")
     public String showDashboard(Authentication auth, Model model) {
-        User user = (User) auth.getPrincipal();
-        model.addAttribute("userName", user.getName());
+        Usuario usuario = (Usuario) auth.getPrincipal();
+        model.addAttribute("userName", usuario.getNombre());
         return "dashboard";
     }
 }

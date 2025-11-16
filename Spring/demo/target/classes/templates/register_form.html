@@ -42,26 +42,6 @@
         <label>Contraseña:</label>
         <input type="password" th:field="*{password}" /><br/>
 
-        <label>Fecha de nacimiento:</label>
-        <input type="date" th:field="*{birthday}" /><br/>
-
-        <label>Género:</label>
-        <input type="radio" th:field="*{gender}" value="Masculino"/> Masculino
-        <input type="radio" th:field="*{gender}" value="Femenino"/> Femenino<br/>
-
-        <label>Profesión:</label>
-        <select th:field="*{profession}">
-            <option th:each="profesion : ${listProfession}" 
-                    th:value="${profesion}" 
-                    th:text="${profesion}"></option>
-        </select><br/>
-
-        <label>¿Casado?</label>
-        <input type="checkbox" th:field="*{married}" /><br/>
-
-        <label>Nota:</label>
-        <textarea rows="5" th:field="*{note}"></textarea><br/>
-
         <div class="boton">
             <button type="submit">Registrar</button>
         </div>

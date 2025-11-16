@@ -24,7 +24,7 @@
                     <div class="form-group">
                         <label for="title">Título *</label>
                         <input type="text" id="title" name="title" required
-                               th:value="${task.title}"
+                               th:value="${task.titulo}"
                                placeholder="Ingresa el título de la tarea">
                     </div>
 
@@ -32,30 +32,30 @@
                         <label for="description">Descripción</label>
                         <textarea id="description" name="description" rows="4"
                                 placeholder="Describe los detalles de la tarea"
-                                th:text="${task.description}"></textarea>
+                                th:text="${task.descripcion}"></textarea>
                     </div>
 
                     <div class="form-group">
                         <label for="dueDate">Fecha de entrega</label>
-               <input type="datetime-local" id="dueDate" name="dueDate"
-                   th:value="${task.dueDate != null ? #dates.format(task.dueDate, 'yyyy-MM-dd''T''HH:mm') : ''}">
+                        <input type="date" id="dueDate" name="dueDate"
+                               th:value="${task.fechaLimite != null ? #temporals.format(task.fechaLimite, 'yyyy-MM-dd') : ''}">
                     </div>
 
                     <div class="form-group">
                         <label for="priority">Prioridad</label>
                         <select id="priority" name="priority">
-                            <option value="BAJA" th:selected="${task.priority == 'BAJA'}">Baja</option>
-                            <option value="MEDIA" th:selected="${task.priority == 'MEDIA'}">Media</option>
-                            <option value="ALTA" th:selected="${task.priority == 'ALTA'}">Alta</option>
+                            <option value="BAJA" th:selected="${task.prioridad.toString() == 'Baja'}">Baja</option>
+                            <option value="MEDIA" th:selected="${task.prioridad.toString() == 'Media'}">Media</option>
+                            <option value="ALTA" th:selected="${task.prioridad.toString() == 'Alta'}">Alta</option>
                         </select>
                     </div>
 
                     <div class="form-group">
                         <label for="status">Estado</label>
                         <select id="status" name="status">
-                            <option value="PENDIENTE" th:selected="${task.status == 'PENDIENTE'}">Pendiente</option>
-                            <option value="EN_PROGRESO" th:selected="${task.status == 'EN_PROGRESO'}">En Progreso</option>
-                            <option value="COMPLETADA" th:selected="${task.status == 'COMPLETADA'}">Completada</option>
+                            <option value="PENDIENTE" th:selected="${task.estado.toString() == 'Pendiente'}">Pendiente</option>
+                            <option value="EN_PROGRESO" th:selected="${task.estado.toString() == 'En_progreso'}">En Progreso</option>
+                            <option value="COMPLETADA" th:selected="${task.estado.toString() == 'Completada'}">Completada</option>
                         </select>
                     </div>
 

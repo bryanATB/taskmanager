@@ -18,29 +18,27 @@
         <main>
             <div class="form-container">
                 <div class="task-details">
-                    <h3 th:text="${task.title}">Título de la Tarea</h3>
+                    <h3 th:text="${task.titulo}">Título de la Tarea</h3>
                     
                     <div class="detail-group">
                         <label>Descripción</label>
-                        <p th:text="${task.description}">Descripción de la tarea</p>
+                        <p th:text="${task.descripcion}">Descripción de la tarea</p>
                     </div>
 
                     <div class="detail-group">
                         <label>Fecha de Entrega</label>
-                        <p th:text="${task.dueDate != null ? #dates.format(task.dueDate, 'dd/MM/yyyy HH:mm') : 'No establecida'}">Fecha</p>
+                        <p th:text="${task.fechaLimite != null ? #temporals.format(task.fechaLimite, 'dd/MM/yyyy') : 'No establecida'}">Fecha</p>
                     </div>
 
                     <div class="detail-group">
                         <label>Estado</label>
-                        <p th:text="${task.status}">Estado</p>
+                        <p th:text="${task.estado}">Estado</p>
                     </div>
 
                     <div class="detail-group">
                         <label>Prioridad</label>
-                        <p th:text="${task.priority}">Prioridad</p>
+                        <p th:text="${task.prioridad}">Prioridad</p>
                     </div>
-
-
                 </div>
             </div>
         </main>
