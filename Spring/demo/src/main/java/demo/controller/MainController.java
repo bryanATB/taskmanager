@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import demo.UserService;
+import demo.model.Tarea;
 import demo.model.Usuario;
 
 @Controller
@@ -40,5 +41,13 @@ public class MainController {
         Usuario usuario = (Usuario) auth.getPrincipal();
         model.addAttribute("userName", usuario.getNombre());
         return "dashboard";
+    }
+
+     @GetMapping("/create-task")
+    public String showCreateTaskForm(Authentication auth, Model model) {
+        Usuario usuario = (Usuario) auth.getPrincipal();
+        model.addAttribute("userName", usuario.getNombre());
+        model.addAttribute("task", new Tarea());
+        return "create-task";
     }
 }

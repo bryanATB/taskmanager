@@ -41,12 +41,6 @@ public class TaskController {
     @Autowired
     private UsuarioRepository usuarioRepository;
 
-    @GetMapping("/create-task")
-    public String showCreateTaskForm(Model model) {
-        model.addAttribute("task", new Tarea());
-        return "create-task";
-    }
-
     @PostMapping("/save-task")
     @ResponseBody
     public ResponseEntity<?> saveTask(@RequestBody Map<String, Object> payload, Authentication auth) {
@@ -204,6 +198,8 @@ public class TaskController {
     @GetMapping("/edit-task/{id}")
     public String showEditTaskForm(@PathVariable Integer id, Model model, Authentication auth) {
         Usuario usuario = (Usuario) auth.getPrincipal();
+        model.addAttribute("userName", usuario.getNombre());
+        
         Optional<Tarea> tarea = tareaRepository.findById(id);
         
         if (tarea.isPresent() && tarea.get().getUsuario().getId().equals(usuario.getId())) {
@@ -213,9 +209,11 @@ public class TaskController {
         return "redirect:/dashboard";
     }
 
-    @GetMapping("/view-task/{id}")
+      @GetMapping("/view-task/{id}")
     public String viewTask(@PathVariable Integer id, Model model, Authentication auth) {
         Usuario usuario = (Usuario) auth.getPrincipal();
+        model.addAttribute("userName", usuario.getNombre());
+        
         Optional<Tarea> tarea = tareaRepository.findById(id);
         
         if (tarea.isPresent() && tarea.get().getUsuario().getId().equals(usuario.getId())) {
