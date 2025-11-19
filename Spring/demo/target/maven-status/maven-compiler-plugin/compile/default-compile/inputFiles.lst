@@ -1,23 +1,23 @@
-C:\Users\DIANA\OneDrive\Escritorio\UNIVERSIDAD T\taskmanager\Spring\demo\src\main\java\demo\controller\MainController.java
-C:\Users\DIANA\OneDrive\Escritorio\UNIVERSIDAD T\taskmanager\Spring\demo\src\main\java\demo\controller\TaskController.java
-C:\Users\DIANA\OneDrive\Escritorio\UNIVERSIDAD T\taskmanager\Spring\demo\src\main\java\demo\DataLoader.java
-C:\Users\DIANA\OneDrive\Escritorio\UNIVERSIDAD T\taskmanager\Spring\demo\src\main\java\demo\DemoApplication.java
-C:\Users\DIANA\OneDrive\Escritorio\UNIVERSIDAD T\taskmanager\Spring\demo\src\main\java\demo\model\Categoria.java
-C:\Users\DIANA\OneDrive\Escritorio\UNIVERSIDAD T\taskmanager\Spring\demo\src\main\java\demo\model\Comentario.java
-C:\Users\DIANA\OneDrive\Escritorio\UNIVERSIDAD T\taskmanager\Spring\demo\src\main\java\demo\model\Historial.java
-C:\Users\DIANA\OneDrive\Escritorio\UNIVERSIDAD T\taskmanager\Spring\demo\src\main\java\demo\model\Subtarea.java
-C:\Users\DIANA\OneDrive\Escritorio\UNIVERSIDAD T\taskmanager\Spring\demo\src\main\java\demo\model\Tarea.java
-C:\Users\DIANA\OneDrive\Escritorio\UNIVERSIDAD T\taskmanager\Spring\demo\src\main\java\demo\model\Task.java
-C:\Users\DIANA\OneDrive\Escritorio\UNIVERSIDAD T\taskmanager\Spring\demo\src\main\java\demo\model\User.java
-C:\Users\DIANA\OneDrive\Escritorio\UNIVERSIDAD T\taskmanager\Spring\demo\src\main\java\demo\model\Usuario.java
-C:\Users\DIANA\OneDrive\Escritorio\UNIVERSIDAD T\taskmanager\Spring\demo\src\main\java\demo\repository\CategoriaRepository.java
-C:\Users\DIANA\OneDrive\Escritorio\UNIVERSIDAD T\taskmanager\Spring\demo\src\main\java\demo\repository\ComentarioRepository.java
-C:\Users\DIANA\OneDrive\Escritorio\UNIVERSIDAD T\taskmanager\Spring\demo\src\main\java\demo\repository\HistorialRepository.java
-C:\Users\DIANA\OneDrive\Escritorio\UNIVERSIDAD T\taskmanager\Spring\demo\src\main\java\demo\repository\SubtareaRepository.java
-C:\Users\DIANA\OneDrive\Escritorio\UNIVERSIDAD T\taskmanager\Spring\demo\src\main\java\demo\repository\TareaRepository.java
-C:\Users\DIANA\OneDrive\Escritorio\UNIVERSIDAD T\taskmanager\Spring\demo\src\main\java\demo\repository\TaskRepository.java
-C:\Users\DIANA\OneDrive\Escritorio\UNIVERSIDAD T\taskmanager\Spring\demo\src\main\java\demo\repository\UserRepository.java
-C:\Users\DIANA\OneDrive\Escritorio\UNIVERSIDAD T\taskmanager\Spring\demo\src\main\java\demo\repository\UsuarioRepository.java
-C:\Users\DIANA\OneDrive\Escritorio\UNIVERSIDAD T\taskmanager\Spring\demo\src\main\java\demo\SecurityConfig.java
-C:\Users\DIANA\OneDrive\Escritorio\UNIVERSIDAD T\taskmanager\Spring\demo\src\main\java\demo\UserService.java
-C:\Users\DIANA\OneDrive\Escritorio\UNIVERSIDAD T\taskmanager\Spring\demo\src\main\java\SpingBootFormApplication.java
+C:\Users\bryan\OneDrive\Escritorio\taskmanager\Spring\demo\src\main\java\demo\controller\MainController.java
+C:\Users\bryan\OneDrive\Escritorio\taskmanager\Spring\demo\src\main\java\demo\controller\TaskController.java
+C:\Users\bryan\OneDrive\Escritorio\taskmanager\Spring\demo\src\main\java\demo\DataLoader.java
+C:\Users\bryan\OneDrive\Escritorio\taskmanager\Spring\demo\src\main\java\demo\DemoApplication.java
+C:\Users\bryan\OneDrive\Escritorio\taskmanager\Spring\demo\src\main\java\demo\model\Categoria.java
+C:\Users\bryan\OneDrive\Escritorio\taskmanager\Spring\demo\src\main\java\demo\model\Comentario.java
+C:\Users\bryan\OneDrive\Escritorio\taskmanager\Spring\demo\src\main\java\demo\model\Historial.java
+C:\Users\bryan\OneDrive\Escritorio\taskmanager\Spring\demo\src\main\java\demo\model\Subtarea.java
+C:\Users\bryan\OneDrive\Escritorio\taskmanager\Spring\demo\src\main\java\demo\model\Tarea.java
+C:\Users\bryan\OneDrive\Escritorio\taskmanager\Spring\demo\src\main\java\demo\model\Task.java
+C:\Users\bryan\OneDrive\Escritorio\taskmanager\Spring\demo\src\main\java\demo\model\User.java
+C:\Users\bryan\OneDrive\Escritorio\taskmanager\Spring\demo\src\main\java\demo\model\Usuario.java
+C:\Users\bryan\OneDrive\Escritorio\taskmanager\Spring\demo\src\main\java\demo\repository\CategoriaRepository.java
+C:\Users\bryan\OneDrive\Escritorio\taskmanager\Spring\demo\src\main\java\demo\repository\ComentarioRepository.java
+C:\Users\bryan\OneDrive\Escritorio\taskmanager\Spring\demo\src\main\java\demo\repository\HistorialRepository.java
+C:\Users\bryan\OneDrive\Escritorio\taskmanager\Spring\demo\src\main\java\demo\repository\SubtareaRepository.java
+C:\Users\bryan\OneDrive\Escritorio\taskmanager\Spring\demo\src\main\java\demo\repository\TareaRepository.java
+C:\Users\bryan\OneDrive\Escritorio\taskmanager\Spring\demo\src\main\java\demo\repository\TaskRepository.java
+C:\Users\bryan\OneDrive\Escritorio\taskmanager\Spring\demo\src\main\java\demo\repository\UserRepository.java
+C:\Users\bryan\OneDrive\Escritorio\taskmanager\Spring\demo\src\main\java\demo\repository\UsuarioRepository.java
+C:\Users\bryan\OneDrive\Escritorio\taskmanager\Spring\demo\src\main\java\demo\SecurityConfig.java
+C:\Users\bryan\OneDrive\Escritorio\taskmanager\Spring\demo\src\main\java\demo\UserService.java
+C:\Users\bryan\OneDrive\Escritorio\taskmanager\Spring\demo\src\main\java\SpingBootFormApplication.java
