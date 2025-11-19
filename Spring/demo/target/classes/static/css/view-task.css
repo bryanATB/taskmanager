@@ -1,105 +1,286 @@
-/* Reset básico */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
 * {
-  margin: 0;
-  padding: 0;
-}/* Hace que todos los elementos midan de forma predecible */
-
-
-*, *::before, *::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
-/* Suaviza fuentes en pantallas y prepara layout */
-html {
-  height: 100%;
-  scroll-behavior: smooth;
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background-color: #f8f9fa;
+    color: #1e293b;
+    height: 100vh;
+    display: flex;
+    overflow: hidden;
 }
 
-
-body{
-    margin:0;
-    font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
-    background-color: #f0f0f0;
-    color:#111827;
-    min-height: 100%;
-    line-height: 1.5;
-}
-
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
-
-label {
-    font-family: 'Inter', sans-serif;
-    font-weight: 500;
-    color: #1f2937;
-    font-size: 13px;
-    letter-spacing: 0.03em;
-    text-transform: uppercase;
-}
-
-
+/* Sidebar */
 .lateral {
     height: 100vh;
-    width: 190px; 
-    background-color: rgb(0, 51, 0, 1);
-    padding: 20px 10px;
+    width: 260px;
+    background: linear-gradient(180deg, #2d3748 0%, #1a202c 100%);
+    padding: 32px 20px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 2px 0 12px rgba(0, 0, 0, 0.08);
 }
 
-h2 {
-    color: white;
-    position: relative;
-    bottom: 10px;
-    left: 10px;
+.lateral h2 {
+    color: #ffffff;
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 40px;
+    padding-left: 12px;
+    letter-spacing: -0.02em;
 }
 
 .btns {
-    display: block;
-    width: 150px;
-    padding: 10px 15px;
-    margin: 20px auto;
-    color: white;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 12px 16px;
+    margin: 6px 0;
+    color: #cbd5e1;
     text-decoration: none;
-    border-radius: 10px;
-    font-weight: 600;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 14px;
     cursor: pointer;
-    transition: 0.3s ease;
+    transition: all 0.2s ease;
+    background-color: transparent;
 }
 
 .btns:hover {
-    background-color: #66d6c2;
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    transform: translateX(4px);
+}
+
+.btns:active {
+    transform: translateX(2px);
 }
 
 .btn-cerrar {
-    position: relative;
-    top: 300px;
-    left: 15px;
-    padding: 10px 15px;
-    margin: 20px auto;
-    font-size: 16px;
-    border-radius: 10px;
-    border: none;
-    outline: none;
-    box-shadow: none;
-    background: none;
-    color: white;
+    margin-top: auto;
+    width: 100%;
+    padding: 12px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    border-radius: 8px;
+    border: 1px solid rgba(248, 113, 113, 0.3);
+    background-color: transparent;
+    color: #f87171;
     cursor: pointer;
-    transition: 0.3s ease;
+    transition: all 0.2s ease;
+    font-family: 'Inter', sans-serif;
 }
 
 .btn-cerrar:hover {
-    background-color: #ff4d4d;
-    padding: 10px 15px;
-    margin: 20px auto;
+    background-color: #ef4444;
+    color: #ffffff;
+    border-color: #ef4444;
 }
 
+/* Main Content */
+main {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+}
+
+/* Form Container */
 .form-container {
-    position: absolute;
-    left : 250px;
-    top: 50px;
-   
+    flex: 1;
+    padding: 40px 48px;
+    overflow-y: auto;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
 }
 
+/* Task Details Card */
+.task-details {
+    background-color: #ffffff;
+    border-radius: 16px;
+    padding: 40px;
+    width: 100%;
+    max-width: 800px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    border: 1px solid #f1f5f9;
+}
+
+.task-details h3 {
+    font-size: 28px;
+    font-weight: 600;
+    color: #0f172a;
+    margin-bottom: 32px;
+    letter-spacing: -0.02em;
+    border-bottom: 1px solid #e2e8f0;
+    padding-bottom: 20px;
+}
+
+/* Detail Groups */
 .detail-group {
-    margin-bottom: 30px;
+    margin-bottom: 28px;
+    padding-bottom: 28px;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.detail-group:last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.detail-group label {
+    display: block;
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    color: #64748b;
+    font-size: 12px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+}
+
+.detail-group p {
+    font-size: 15px;
+    color: #1e293b;
+    line-height: 1.6;
+    font-weight: 400;
+    margin: 0;
+    padding: 8px 0;
+}
+
+/* Action Buttons Container */
+.action-buttons {
+    display: flex;
+    gap: 12px;
+    margin-top: 32px;
+    padding-top: 32px;
+    border-top: 1px solid #e2e8f0;
+    flex-wrap: wrap;
+}
+
+/* Base Button Style */
+.btn-action {
+    flex: 1;
+    min-width: 140px;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    font-family: 'Inter', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    text-decoration: none;
+    text-align: center;
+}
+
+/* Primary Button (Editar) */
+.btn-primary {
+    background-color: #3b82f6;
+    color: #ffffff;
+    box-shadow: 0 1px 2px rgba(59, 130, 246, 0.15);
+}
+
+.btn-primary:hover {
+    background-color: #2563eb;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
+    transform: translateY(-1px);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 2px rgba(59, 130, 246, 0.15);
+}
+
+/* Secondary Button (Volver) */
+.btn-secondary {
+    background-color: #f1f5f9;
+    color: #475569;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.btn-secondary:hover {
+    background-color: #e2e8f0;
+    color: #334155;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.btn-secondary:active {
+    transform: scale(0.98);
+}
+
+/* Danger Button (Eliminar) */
+.btn-danger {
+    background-color: #fee2e2;
+    color: #dc2626;
+    box-shadow: 0 1px 2px rgba(220, 38, 38, 0.1);
+}
+
+.btn-danger:hover {
+    background-color: #ef4444;
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
+    transform: translateY(-1px);
+}
+
+.btn-danger:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 2px rgba(239, 68, 68, 0.15);
+}
+
+/* Scrollbar Styling */
+.form-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.form-container::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 4px;
+}
+
+.form-container::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+}
+
+.form-container::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .lateral {
+        width: 220px;
+        padding: 24px 16px;
+    }
+    
+    .form-container {
+        padding: 24px 20px;
+    }
+    
+    .task-details {
+        padding: 28px 24px;
+    }
+    
+    .task-details h3 {
+        font-size: 24px;
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+    }
+    
+    .btn-action {
+        width: 100%;
+        min-width: unset;
+    }
 }

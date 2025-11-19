@@ -33,7 +33,7 @@ async function loadTasks() {
         console.error('Error al cargar las tareas:', error);
         const tbody = document.getElementById('tasksTableBody');
         if (tbody) {
-            tbody.innerHTML = '<tr><td colspan="5" class="text-center" style="color: red;">Error al cargar las tareas</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="5" class="text-center" style="color: #ef4444;">Error al cargar las tareas</td></tr>';
         }
     }
 }
@@ -46,38 +46,67 @@ function renderTasks(tasks) {
     tbody.innerHTML = '';
     
     if (!tasks || tasks.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" class="text-center">No hay tareas aún. <a href="/create-task">Crea una nueva</a></td></tr>';
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center">No hay tareas aún. <a href="/create-task" style="color: #3b82f6; text-decoration: none; font-weight: 500;">Crea una nueva</a></td></tr>';
         return;
     }
 
     tasks.forEach(task => {
         const tr = document.createElement('tr');
         
-        // Formatear prioridad con color
-        let prioridadClass = '';
-        let prioridadText = task.priority || 'MEDIA';
-        if (prioridadText === 'ALTA') prioridadClass = 'style="color: #ef4444; font-weight: 600;"';
-        else if (prioridadText === 'BAJA') prioridadClass = 'style="color: #6b7280;"';
+        // Formatear prioridad con badge
+        let prioridadBadge = getPriorityBadge(task.priority || 'MEDIA');
         
-        // Formatear estado con color
-        let estadoClass = '';
-        let estadoText = task.status || 'PENDIENTE';
-        if (estadoText.includes('COMPLETADA')) estadoClass = 'style="color: #10b981; font-weight: 600;"';
-        else if (estadoText.includes('PROGRESO')) estadoClass = 'style="color: #f59e0b; font-weight: 600;"';
+        // Formatear estado con badge
+        let estadoBadge = getStatusBadge(task.status || 'PENDIENTE');
         
         tr.innerHTML = `
-            <td data-label="Título">${escapeHtml(task.title)}</td>
-            <td data-label="Fecha">${formatDate(task.dueDate)}</td>
-            <td data-label="Prioridad" ${prioridadClass}>${prioridadText}</td>
-            <td data-label="Estado" ${estadoClass}>${estadoText}</td>
-            <td data-label="Acciones" class="actions">
-                <a href="/view-task/${task.id}" class="btn btn-ghost">Ver</a>
-                <a href="/edit-task/${task.id}" class="btn btn-ghost">Editar</a>
-                <button onclick="deleteTask(${task.id})" class="btn" style="background:#ef4444;">Eliminar</button>
+            <td>
+                <span style="font-weight: 500; color: #0f172a;">${escapeHtml(task.title)}</span>
+            </td>
+            <td style="color: #64748b;">${formatDate(task.dueDate)}</td>
+            <td>${prioridadBadge}</td>
+            <td>${estadoBadge}</td>
+            <td>
+                <div class="action-buttons-table">
+                    <a href="/view-task/${task.id}" class="btn-table btn-view">Ver</a>
+                    <a href="/edit-task/${task.id}" class="btn-table btn-edit">Editar</a>
+                    <button onclick="deleteTask(${task.id})" class="btn-table btn-delete">Eliminar</button>
+                </div>
             </td>
         `;
         tbody.appendChild(tr);
     });
+}
+
+// Función para crear badge de prioridad
+function getPriorityBadge(priority) {
+    const styles = {
+        'ALTA': 'background: #fee2e2; color: #dc2626; border: 1px solid #fecaca;',
+        'MEDIA': 'background: #fef3c7; color: #d97706; border: 1px solid #fde68a;',
+        'BAJA': 'background: #e0e7ff; color: #4338ca; border: 1px solid #c7d2fe;'
+    };
+    
+    const style = styles[priority] || styles['MEDIA'];
+    return `<span class="badge" style="${style}">${priority}</span>`;
+}
+
+// Función para crear badge de estado
+function getStatusBadge(status) {
+    const styles = {
+        'COMPLETADA': 'background: #dcfce7; color: #16a34a; border: 1px solid #bbf7d0;',
+        'EN_PROGRESO': 'background: #fef3c7; color: #d97706; border: 1px solid #fde68a;',
+        'PENDIENTE': 'background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0;'
+    };
+    
+    const displayText = {
+        'COMPLETADA': 'Completada',
+        'EN_PROGRESO': 'En Progreso',
+        'PENDIENTE': 'Pendiente'
+    };
+    
+    const style = styles[status] || styles['PENDIENTE'];
+    const text = displayText[status] || status;
+    return `<span class="badge" style="${style}">${text}</span>`;
 }
 
 // Función para manejar el formulario de creación/edición de tareas
@@ -116,11 +145,11 @@ async function handleTaskForm(event) {
             } catch (e) {
                 // Si no puede parsear JSON, usar mensaje por defecto
             }
-            alert(msg);
+            showNotification(msg, 'error');
         }
     } catch (error) {
         console.error('Error:', error);
-        alert('Error al guardar la tarea');
+        showNotification('Error al guardar la tarea', 'error');
     }
 }
 
@@ -139,17 +168,24 @@ async function deleteTask(id) {
         if (response.ok) {
             const result = await response.json();
             if (result.success) {
+                showNotification('Tarea eliminada correctamente', 'success');
                 loadTasks();
             } else {
-                alert('Error al eliminar la tarea');
+                showNotification('Error al eliminar la tarea', 'error');
             }
         } else {
-            alert('Error al eliminar la tarea');
+            showNotification('Error al eliminar la tarea', 'error');
         }
     } catch (error) {
         console.error('Error:', error);
-        alert('Error al eliminar la tarea');
+        showNotification('Error al eliminar la tarea', 'error');
     }
+}
+
+// Función para mostrar notificaciones (opcional)
+function showNotification(message, type = 'info') {
+    // Por ahora usamos alert, pero puedes implementar toast notifications
+    alert(message);
 }
 
 // Función para formatear fechas
@@ -175,6 +211,26 @@ function escapeHtml(str) {
     return div.innerHTML;
 }
 
+// Funcionalidad de búsqueda en tiempo real
+function initializeSearch() {
+    const searchInput = document.querySelector('.b');
+    if (!searchInput) return;
+
+    searchInput.addEventListener('input', (e) => {
+        const searchTerm = e.target.value.toLowerCase();
+        const rows = document.querySelectorAll('#tasksTableBody tr');
+        
+        rows.forEach(row => {
+            const title = row.querySelector('td:first-child')?.textContent.toLowerCase() || '';
+            if (title.includes(searchTerm)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    });
+}
+
 // Inicialización
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM cargado, inicializando...');
@@ -184,6 +240,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (tasksTableBody) {
         console.log('Cargando tareas...');
         loadTasks();
+        initializeSearch();
     }
 
     // Configurar formulario de tarea si existe

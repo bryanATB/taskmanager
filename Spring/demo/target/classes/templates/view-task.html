@@ -7,46 +7,66 @@
     <link rel="stylesheet" th:href="@{/css/view-task.css}">
 </head>
 <body>
-        <main>
+    <main>
+        <!-- Sidebar lateral -->
+        <div class="lateral">
+            <h2><span th:text="${userName}">Usuario</span></h2>
+            
+            <a th:href="@{/dashboard}" class="btns">Inicio</a>
+            <a th:href="@{/create-task}" class="btns">Nueva Tarea</a>
+            <a href="" class="btns">Categoria</a>
+            <a href="" class="btns">Historial</a>
+            
+            <form th:action="@{/logout}" method="post" style="display: contents;">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                <button type="submit" class="btn-cerrar">Cerrar sesión</button>
+            </form>
+        </div>
 
-            <div class="lateral">
-                <h2><span th:text="${userName}">Usuario</span></h2>
-                    <a th:href="@{/dashboard}" class="btns">Inicio</a>
-                    <a th:href="@{/create-task}" class="btns">Nueva Tarea</a>
-                    <a href="" class="btns">Categoria</a>
-                    <a href="" class="btns">Historial</a>
+        <!-- Contenedor del formulario -->
+        <div class="form-container">
+            <div class="task-details">
+                <h3 th:text="${task.titulo}">Título de la Tarea</h3>
                 
-                    <form th:action="@{/logout}" method="post" style="display: inline;">
-                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-                        <button type="submit" class="btn-cerrar">Cerrar sesión</button>
-                    </form>
-            </div>
+                <div class="detail-group">
+                    <label>Descripción</label>
+                    <p th:text="${task.descripcion}">Descripción de la tarea</p>
+                </div>
 
-            <div class="form-container">
-                <div class="task-details">
-                    <h3 th:text="${task.titulo}">Título de la Tarea</h3>
+                <div class="detail-group">
+                    <label>Fecha de Entrega</label>
+                    <p th:text="${task.fechaLimite != null ? #temporals.format(task.fechaLimite, 'dd/MM/yyyy') : 'No establecida'}">Fecha</p>
+                </div>
+
+                <div class="detail-group">
+                    <label>Estado</label>
+                    <p th:text="${task.estado}">Estado</p>
+                </div>
+
+                <div class="detail-group">
+                    <label>Prioridad</label>
+                    <p th:text="${task.prioridad}">Prioridad</p>
+                </div>
+
+                <!-- Botones de Acción -->
+                <div class="action-buttons">
+                    <a th:href="@{/edit-task/{id}(id=${task.id})}" class="btn-action btn-primary">
+                        Editar Tarea
+                    </a>
                     
-                    <div class="detail-group">
-                        <label>Descripción</label>
-                        <p th:text="${task.descripcion}">Descripción de la tarea</p>
-                    </div>
-
-                    <div class="detail-group">
-                        <label>Fecha de Entrega</label>
-                        <p th:text="${task.fechaLimite != null ? #temporals.format(task.fechaLimite, 'dd/MM/yyyy') : 'No establecida'}">Fecha</p>
-                    </div>
-
-                    <div class="detail-group">
-                        <label>Estado</label>
-                        <p th:text="${task.estado}">Estado</p>
-                    </div>
-
-                    <div class="detail-group">
-                        <label>Prioridad</label>
-                        <p th:text="${task.prioridad}">Prioridad</p>
-                    </div>
+                    <a th:href="@{/dashboard}" class="btn-action btn-secondary">
+                        Volver
+                    </a>
+                    
+                    <form th:action="@{/delete-task/{id}(id=${task.id})}" method="post" style="flex: 1; display: contents;">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                        <button type="submit" class="btn-action btn-danger" onclick="return confirm('¿Estás seguro de que deseas eliminar esta tarea?')">
+                            Eliminar
+                        </button>
+                    </form>
                 </div>
             </div>
-        </main>
+        </div>
+    </main>
 </body>
 </html>

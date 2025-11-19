@@ -9,64 +9,68 @@
     <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
 </head>
 <body>
-        <main>
+    <main>
+        <!-- Sidebar lateral -->
+        <div class="lateral">
+            <h2><span th:text="${userName}">Usuario</span></h2>
+            
+            <a th:href="@{/dashboard}" class="btns">Inicio</a>
+            <a th:href="@{/create-task}" class="btns">Nueva Tarea</a>
+            <a href="" class="btns">Categoria</a>
+            <a href="" class="btns">Historial</a>
+            
+            <form th:action="@{/logout}" method="post" style="display: contents;">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                <button type="submit" class="btn-cerrar">Cerrar sesión</button>
+            </form>
+        </div>
 
-            <div class="lateral">
-                <h2><span th:text="${userName}">Usuario</span></h2>
-                    <a th:href="@{/dashboard}" class="btns">Inicio</a>
-                    <a th:href="@{/create-task}" class="btns">Nueva Tarea</a>
-                    <a href="" class="btns">Categoria</a>
-                    <a href="" class="btns">Historial</a>
-                
-                    <form th:action="@{/logout}" method="post" style="display: inline;">
-                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-                        <button type="submit" class="btn-cerrar">Cerrar sesión</button>
-                    </form>
+        <!-- Formulario de nueva tarea -->
+        <form action="/save-task" method="POST" id="taskForm">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+            
+            <div class="titulo">
+                <label for="title">Título</label>
+                <input type="text" class="title" id="title" name="title" required
+                       placeholder="Ej: Completar informe mensual">
             </div>
 
-                <form action="/save-task" method="POST" id="taskForm">
-                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-                    
-                    <div class="titulo">
-                        <label for="title">Título</label>
-                        <input type="text" class="title" id="title" name="title" required
-                               placeholder="Ej: Completar informe mensual">
-                    </div>
+            <div class="descripción">
+                <label for="description">Descripción</label>
+                <textarea class="tdescripcion" id="description" name="description" rows="4"
+                        placeholder="Describe los detalles de la tarea..."></textarea>
+            </div>
 
-                    <div class="descripción">
-                        <label class="ldescripcion" for="description">Descripción</label>
-                        <textarea class="tdescripcion" id="description" name="description" rows="4"
-                                placeholder="Describe los detalles de la tarea..."></textarea>
-                    </div>
+            <div class="fecha">
+                <label for="dueDate">Fecha de entrega</label>
+                <input class="ifecha" type="date" id="dueDate" name="dueDate">
+            </div>
 
-                    <div class="fecha">
-                        <label for="dueDate">Fecha de entrega</label>
-                        <input class="ifecha" type="date" id="dueDate" name="dueDate">
-                    </div>
+            <div class="prioridad">
+                <label for="priority">Prioridad</label>
+                <select class="sprioridad" id="priority" name="priority">
+                    <option value="BAJA">Baja</option>
+                    <option value="MEDIA" selected>Media</option>
+                    <option value="ALTA">Alta</option>
+                </select>
+            </div>
 
-                    <div class="prioridad">
-                        <label for="priority">Prioridad</label>
-                        <select class="sprioridad" id="priority" name="priority">
-                            <option value="BAJA">Baja</option>
-                            <option value="MEDIA" selected>Media</option>
-                            <option value="ALTA">Alta</option>
-                        </select>
-                    </div>
+            <div class="estado">
+                <label for="status">Estado</label>
+                <select class="sestado" id="status" name="status">
+                    <option value="PENDIENTE" selected>Pendiente</option>
+                    <option value="EN_PROGRESO">En Progreso</option>
+                    <option value="COMPLETADA">Completada</option>
+                </select>
+            </div>
 
-                    <div class="estado">
-                        <label for="status">Estado</label>
-                        <select class="sestado" id="status" name="status">
-                            <option value="PENDIENTE" selected>Pendiente</option>
-                            <option value="EN_PROGRESO">En Progreso</option>
-                            <option value="COMPLETADA">Completada</option>
-                        </select>
-                    </div>
-                    <div class="guardar">
-                        <button type="submit" class="btn">Guardar Tarea</button>
-                    </div>
-                </form>
-            
-        </main>
+            <div class="guardar">
+                <a th:href="@{/dashboard}" class="btn btn-secondary" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center;">Cancelar</a>
+                <button type="submit" class="btn">Guardar Tarea</button>
+            </div>
+        </form>
+    </main>
+    
     <script th:src="@{/js/main.js}"></script>
 </body>
 </html>
