@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Categorías - Gestión de Tareas</title>
+    <link rel="stylesheet" th:href="@{/css/dashboard.css}">
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+</head>
+<body>  
+    <main>
+        <!-- Sidebar lateral -->
+        <div class="lateral">
+            <h2><span th:text="${userName}">Usuario</span></h2>
+            
+            <a th:href="@{/dashboard}" class="btns">Inicio</a>
+            <a th:href="@{/create-task}" class="btns">Nueva Tarea</a>
+            <a th:href="@{/categories}" class="btns">Categorías</a>
+            <a th:href="@{/history}" class="btns">Historial</a>
+            
+            <form th:action="@{/logout}" method="post" style="display: contents;">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                <button type="submit" class="btn-cerrar">Cerrar sesión</button>
+            </form>
+        </div>
+
+        <!-- Contenedor principal -->
+        <div class="content-wrapper">
+            <!-- Header con botón -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                <h2 style="margin: 0; font-size: 24px; font-weight: 600; color: #0f172a;">Mis Categorías</h2>
+                <a th:href="@{/create-category}" class="btn-table btn-view" style="padding: 10px 20px; text-decoration: none;">
+                    + Nueva Categoría
+                </a>
+            </div>
+            
+            <!-- Grid de categorías -->
+            <div id="categoriesGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px;">
+                <div style="text-align: center; padding: 40px; color: #94a3b8; grid-column: 1 / -1;">
+                    Cargando categorías...
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <script th:src="@{/js/categories.js}"></script>
+</body>
+</html>

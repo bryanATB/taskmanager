@@ -64,6 +64,7 @@ public class Tarea {
     @OneToMany(mappedBy = "tarea", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Historial> historiales;
     
+    
     // ENUMS PÚBLICOS
     public enum Prioridad {
         Baja, Media, Alta

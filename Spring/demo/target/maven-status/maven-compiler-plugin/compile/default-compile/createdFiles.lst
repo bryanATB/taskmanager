@@ -10,11 +10,13 @@ demo\repository\ComentarioRepository.class
 demo\model\Categoria.class
 demo\repository\SubtareaRepository.class
 demo\model\Tarea$Estado.class
+demo\service\CategoriaService.class
 demo\model\User.class
 demo\model\Usuario.class
 demo\UserService.class
 demo\SecurityConfig.class
 demo\model\Task.class
+demo\controller\CategoriaController.class
 demo\repository\CategoriaRepository.class
 demo\model\Tarea$Prioridad.class
 demo\model\Subtarea.class

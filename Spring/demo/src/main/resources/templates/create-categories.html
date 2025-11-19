@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nueva Categoría - Gestión de Tareas</title>
+    <link rel="stylesheet" th:href="@{/css/create-task.css}">
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+</head>
+<body>
+    <main>
+        <!-- Sidebar lateral -->
+        <div class="lateral">
+            <h2><span th:text="${userName}">Usuario</span></h2>
+            
+            <a th:href="@{/dashboard}" class="btns">Inicio</a>
+            <a th:href="@{/create-task}" class="btns">Nueva Tarea</a>
+            <a th:href="@{/categories}" class="btns">Categorías</a>
+            <a th:href="@{/history}" class="btns">Historial</a>
+            
+            <form th:action="@{/logout}" method="post" style="display: contents;">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                <button type="submit" class="btn-cerrar">Cerrar sesión</button>
+            </form>
+        </div>
+
+        <!-- Formulario de nueva categoría -->
+        <form id="categoryForm">
+            <div class="titulo">
+                <label for="nombre">Nombre de la Categoría</label>
+                <input type="text" class="title" id="nombre" name="nombre" required
+                       placeholder="Ej: Trabajo, Personal, Estudios">
+            </div>
+
+            <div class="descripción">
+                <label for="descripcion">Descripción</label>
+                <textarea class="tdescripcion" id="descripcion" name="descripcion" rows="4"
+                        placeholder="Describe el propósito de esta categoría..."></textarea>
+            </div>
+
+            <div class="prioridad">
+                <label for="color">Color</label>
+                <div style="display: flex; gap: 12px; align-items: center;">
+                    <input type="color" id="color" name="color" value="#3b82f6" 
+                           style="width: 60px; height: 44px; border: 1px solid #e2e8f0; border-radius: 10px; cursor: pointer;">
+                    <span id="colorValue" style="color: #64748b; font-size: 14px;">#3b82f6</span>
+                </div>
+            </div>
+
+            <div class="guardar">
+                <a th:href="@{/categories}" class="btn btn-secondary" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center;">Cancelar</a>
+                <button type="submit" class="btn">Guardar Categoría</button>
+            </div>
+        </form>
+    </main>
+    
+    <script th:src="@{/js/categories.js}"></script>
+</body>
+</html>

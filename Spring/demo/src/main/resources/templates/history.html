@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Historial - Tareas Completadas</title>
+    <link rel="stylesheet" th:href="@{/css/dashboard.css}">
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+</head>
+<body>  
+    <main>
+        <!-- Sidebar lateral -->
+        <div class="lateral">
+            <h2><span th:text="${userName}">Usuario</span></h2>
+            
+            <a th:href="@{/dashboard}" class="btns">Inicio</a>
+            <a th:href="@{/create-task}" class="btns">Nueva Tarea</a>
+            <a th:href="@{/categories}" class="btns">Categorías</a>
+            <a th:href="@{/history}" class="btns">Historial</a>
+            
+            <form th:action="@{/logout}" method="post" style="display: contents;">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                <button type="submit" class="btn-cerrar">Cerrar sesión</button>
+            </form>
+        </div>
+
+        <!-- Contenedor principal -->
+        <div class="content-wrapper">
+            <!-- Barra de búsqueda -->
+            <div class="buscar">
+                <input type="text" class="b" id="searchHistory" placeholder="Buscar en historial...">
+            </div>
+            
+            <!-- Sección de historial -->
+            <div class="menu">
+                <h3>Tareas Completadas</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Título</th>
+                            <th>Categoría</th>
+                            <th>Fecha de entrega</th>
+                            <th>Prioridad</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyTableBody">
+                        <tr>
+                            <td colspan="5" class="text-center">Cargando historial...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+    
+    <script th:src="@{/js/history.js}"></script>
+</body>
+</html>

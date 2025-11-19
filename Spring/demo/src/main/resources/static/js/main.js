@@ -1,10 +1,8 @@
-// main.js - JavaScript para la gestión de tareas
+// main.js - Actualización completa con soporte para categorías
 
-// Obtener el token CSRF
 const csrfToken = document.querySelector("meta[name='_csrf']")?.getAttribute("content");
 const csrfHeader = document.querySelector("meta[name='_csrf_header']")?.getAttribute("content");
 
-// Configuración para las peticiones fetch
 function makeHeaders() {
     const headers = { 
         'Content-Type': 'application/json', 
@@ -16,10 +14,10 @@ function makeHeaders() {
     return headers;
 }
 
-// Función para cargar las tareas
+// Cargar solo tareas activas (no completadas)
 async function loadTasks() {
     try {
-        const response = await fetch('/tasks', { 
+        const response = await fetch('/api/tasks/active', { 
             headers: makeHeaders() 
         });
         
@@ -33,12 +31,37 @@ async function loadTasks() {
         console.error('Error al cargar las tareas:', error);
         const tbody = document.getElementById('tasksTableBody');
         if (tbody) {
-            tbody.innerHTML = '<tr><td colspan="5" class="text-center" style="color: #ef4444;">Error al cargar las tareas</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center" style="color: #ef4444;">Error al cargar las tareas</td></tr>';
         }
     }
 }
 
-// Función para renderizar las tareas en la tabla
+// Cargar categorías para el selector
+async function loadCategoriesSelect() {
+    try {
+        const response = await fetch('/api/categories', { 
+            headers: makeHeaders() 
+        });
+        
+        if (!response.ok) return;
+        
+        const categories = await response.json();
+        const select = document.getElementById('categoryId');
+        
+        if (select) {
+            select.innerHTML = '<option value="">Sin categoría</option>';
+            categories.forEach(cat => {
+                const option = document.createElement('option');
+                option.value = cat.id;
+                option.textContent = cat.nombre;
+                select.appendChild(option);
+            });
+        }
+    } catch (error) {
+        console.error('Error al cargar categorías:', error);
+    }
+}
+
 function renderTasks(tasks) {
     const tbody = document.getElementById('tasksTableBody');
     if (!tbody) return;
@@ -46,22 +69,28 @@ function renderTasks(tasks) {
     tbody.innerHTML = '';
     
     if (!tasks || tasks.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" class="text-center">No hay tareas aún. <a href="/create-task" style="color: #3b82f6; text-decoration: none; font-weight: 500;">Crea una nueva</a></td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center">No hay tareas activas. <a href="/create-task" style="color: #3b82f6; text-decoration: none; font-weight: 500;">Crea una nueva</a></td></tr>';
         return;
     }
 
     tasks.forEach(task => {
         const tr = document.createElement('tr');
         
-        // Formatear prioridad con badge
-        let prioridadBadge = getPriorityBadge(task.priority || 'MEDIA');
+        const prioridadBadge = getPriorityBadge(task.priority || 'MEDIA');
+        const estadoBadge = getStatusBadge(task.status || 'PENDIENTE');
         
-        // Formatear estado con badge
-        let estadoBadge = getStatusBadge(task.status || 'PENDIENTE');
+        // Obtener información de categoría
+        const categoryName = task.category ? task.category.nombre : 'Sin categoría';
+        const categoryColor = task.category ? task.category.color : '#94a3b8';
         
         tr.innerHTML = `
             <td>
                 <span style="font-weight: 500; color: #0f172a;">${escapeHtml(task.title)}</span>
+            </td>
+            <td>
+                <span class="badge" style="background: ${categoryColor}20; color: ${categoryColor}; border: 1px solid ${categoryColor}40;">
+                    ${escapeHtml(categoryName)}
+                </span>
             </td>
             <td style="color: #64748b;">${formatDate(task.dueDate)}</td>
             <td>${prioridadBadge}</td>
@@ -78,7 +107,6 @@ function renderTasks(tasks) {
     });
 }
 
-// Función para crear badge de prioridad
 function getPriorityBadge(priority) {
     const styles = {
         'ALTA': 'background: #fee2e2; color: #dc2626; border: 1px solid #fecaca;',
@@ -90,7 +118,6 @@ function getPriorityBadge(priority) {
     return `<span class="badge" style="${style}">${priority}</span>`;
 }
 
-// Función para crear badge de estado
 function getStatusBadge(status) {
     const styles = {
         'COMPLETADA': 'background: #dcfce7; color: #16a34a; border: 1px solid #bbf7d0;',
@@ -109,7 +136,6 @@ function getStatusBadge(status) {
     return `<span class="badge" style="${style}">${text}</span>`;
 }
 
-// Función para manejar el formulario de creación/edición de tareas
 async function handleTaskForm(event) {
     event.preventDefault();
     const form = event.target;
@@ -120,7 +146,8 @@ async function handleTaskForm(event) {
         description: form.querySelector('#description').value,
         dueDate: form.querySelector('#dueDate').value,
         status: form.querySelector('#status').value,
-        priority: form.querySelector('#priority')?.value
+        priority: form.querySelector('#priority')?.value,
+        categoryId: form.querySelector('#categoryId')?.value || null
     };
 
     try {
@@ -142,9 +169,7 @@ async function handleTaskForm(event) {
                 if (err && err.error) {
                     msg = err.error;
                 }
-            } catch (e) {
-                // Si no puede parsear JSON, usar mensaje por defecto
-            }
+            } catch (e) {}
             showNotification(msg, 'error');
         }
     } catch (error) {
@@ -153,7 +178,6 @@ async function handleTaskForm(event) {
     }
 }
 
-// Función para eliminar una tarea
 async function deleteTask(id) {
     if (!confirm('¿Estás seguro de que quieres eliminar esta tarea?')) {
         return;
@@ -166,13 +190,8 @@ async function deleteTask(id) {
         });
 
         if (response.ok) {
-            const result = await response.json();
-            if (result.success) {
-                showNotification('Tarea eliminada correctamente', 'success');
-                loadTasks();
-            } else {
-                showNotification('Error al eliminar la tarea', 'error');
-            }
+            showNotification('Tarea eliminada correctamente', 'success');
+            loadTasks();
         } else {
             showNotification('Error al eliminar la tarea', 'error');
         }
@@ -182,13 +201,10 @@ async function deleteTask(id) {
     }
 }
 
-// Función para mostrar notificaciones (opcional)
 function showNotification(message, type = 'info') {
-    // Por ahora usamos alert, pero puedes implementar toast notifications
     alert(message);
 }
 
-// Función para formatear fechas
 function formatDate(dateStr) {
     if (!dateStr) return 'Sin fecha';
     try {
@@ -203,7 +219,6 @@ function formatDate(dateStr) {
     }
 }
 
-// Función para escapar HTML y prevenir XSS
 function escapeHtml(str) {
     if (!str) return '';
     const div = document.createElement('div');
@@ -211,7 +226,7 @@ function escapeHtml(str) {
     return div.innerHTML;
 }
 
-// Funcionalidad de búsqueda en tiempo real
+// Búsqueda mejorada por nombre y categoría
 function initializeSearch() {
     const searchInput = document.querySelector('.b');
     if (!searchInput) return;
@@ -222,7 +237,9 @@ function initializeSearch() {
         
         rows.forEach(row => {
             const title = row.querySelector('td:first-child')?.textContent.toLowerCase() || '';
-            if (title.includes(searchTerm)) {
+            const category = row.querySelector('td:nth-child(2)')?.textContent.toLowerCase() || '';
+            
+            if (title.includes(searchTerm) || category.includes(searchTerm)) {
                 row.style.display = '';
             } else {
                 row.style.display = 'none';
@@ -231,22 +248,16 @@ function initializeSearch() {
     });
 }
 
-// Inicialización
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM cargado, inicializando...');
-    
-    // Cargar tareas si estamos en el dashboard
     const tasksTableBody = document.getElementById('tasksTableBody');
     if (tasksTableBody) {
-        console.log('Cargando tareas...');
         loadTasks();
         initializeSearch();
     }
 
-    // Configurar formulario de tarea si existe
     const taskForm = document.querySelector('form#taskForm');
     if (taskForm) {
-        console.log('Configurando formulario de tarea...');
         taskForm.addEventListener('submit', handleTaskForm);
+        loadCategoriesSelect();
     }
 });

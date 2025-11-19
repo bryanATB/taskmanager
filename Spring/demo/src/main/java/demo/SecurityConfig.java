@@ -20,7 +20,16 @@ public class SecurityConfig {
                 .requestMatchers("/css/**", "/js/**", "/register", "/process-registration").permitAll()
                 .requestMatchers("/", "/login").permitAll()
                 .requestMatchers("/tasks/**", "/save-task").authenticated()
+                .requestMatchers(
+                "/categories", 
+                "/create-category", 
+                "/history",
+                "/api/categories/**",
+                "/api/tasks/active",
+                "/api/tasks/completed"
+                ).authenticated()
                 .anyRequest().authenticated()
+                
             )
             .formLogin((form) -> form
                 .loginPage("/")
