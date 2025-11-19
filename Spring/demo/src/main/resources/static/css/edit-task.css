@@ -1,10 +1,30 @@
+/* Reset básico */
+* {
+  margin: 0;
+  padding: 0;
+}/* Hace que todos los elementos midan de forma predecible */
+
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* Suaviza fuentes en pantallas y prepara layout */
+html {
+  height: 100%;
+  scroll-behavior: smooth;
+}
+
+
 body{
     margin:0;
     font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
     background-color: #f0f0f0;
     color:#111827;
-    height: 100vh;
-    display: flex;
+    min-height: 100%;
+    line-height: 1.5;
 }
 
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
@@ -52,7 +72,7 @@ h2 {
 
 .btn-cerrar {
     position: relative;
-    top: 250px;
+    top: 300px;
     left: 15px;
     padding: 10px 15px;
     margin: 20px auto;
