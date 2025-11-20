@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Categorías - Gestión de Tareas</title>
-    <link rel="stylesheet" th:href="@{/css/dashboard.css}">
+    <link rel="stylesheet" th:href="@{/css/categories.css}">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
     <meta name="_csrf" th:content="${_csrf.token}"/>
     <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
 </head>
@@ -12,6 +13,12 @@
     <main>
         <!-- Sidebar lateral -->
         <div class="lateral">
+            <!-- Botón de cambio de tema -->
+            <button id="darkModeToggle" class="dark-mode-toggle" title="Cambiar tema">
+                <i data-lucide="moon" class="theme-icon moon-icon"></i>
+                <i data-lucide="sun" class="theme-icon sun-icon"></i>
+            </button>
+            
             <h2><span th:text="${userName}">Usuario</span></h2>
             
             <a th:href="@{/dashboard}" class="btns">Inicio</a>
@@ -28,22 +35,50 @@
         <!-- Contenedor principal -->
         <div class="content-wrapper">
             <!-- Header con botón -->
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
-                <h2 style="margin: 0; font-size: 24px; font-weight: 600; color: #0f172a;">Mis Categorías</h2>
+            <div class="header-section">
+                <h2>Mis Categorías</h2>
                 <a th:href="@{/create-category}" class="btn-table btn-view" style="padding: 10px 20px; text-decoration: none;">
                     + Nueva Categoría
                 </a>
             </div>
             
             <!-- Grid de categorías -->
-            <div id="categoriesGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px;">
-                <div style="text-align: center; padding: 40px; color: #94a3b8; grid-column: 1 / -1;">
+            <div id="categoriesGrid">
+                <div class="empty-state" style="grid-column: 1 / -1;">
                     Cargando categorías...
                 </div>
             </div>
         </div>
     </main>
     
+    <script th:src="@{/js/dark-mode.js}"></script>
     <script th:src="@{/js/categories.js}"></script>
+    <script>
+        // Inicializar iconos Lucide
+        lucide.createIcons();
+
+        // Actualizar icono según el tema
+        const toggleButton = document.getElementById('darkModeToggle');
+        const moonIcon = document.querySelector('.moon-icon');
+        const sunIcon = document.querySelector('.sun-icon');
+
+        function updateThemeIcon() {
+            if (document.body.classList.contains('dark-mode')) {
+                moonIcon.style.display = 'none';
+                sunIcon.style.display = 'block';
+            } else {
+                moonIcon.style.display = 'block';
+                sunIcon.style.display = 'none';
+            }
+        }
+
+        updateThemeIcon();
+        toggleButton.addEventListener('click', () => {
+            setTimeout(updateThemeIcon, 50);
+        });
+
+        const observer = new MutationObserver(updateThemeIcon);
+        observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+    </script>
 </body>
 </html>

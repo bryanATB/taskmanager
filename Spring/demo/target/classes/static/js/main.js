@@ -1,4 +1,4 @@
-// main.js - Actualización completa con soporte para categorías
+// main.js - Actualización completa con soporte para categorías y modo oscuro
 
 const csrfToken = document.querySelector("meta[name='_csrf']")?.getAttribute("content");
 const csrfHeader = document.querySelector("meta[name='_csrf_header']")?.getAttribute("content");
@@ -69,7 +69,7 @@ function renderTasks(tasks) {
     tbody.innerHTML = '';
     
     if (!tasks || tasks.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" class="text-center">No hay tareas activas. <a href="/create-task" style="color: #3b82f6; text-decoration: none; font-weight: 500;">Crea una nueva</a></td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center">No hay tareas activas. <a href="/create-task" class="link-primary">Crea una nueva</a></td></tr>';
         return;
     }
 
@@ -85,14 +85,14 @@ function renderTasks(tasks) {
         
         tr.innerHTML = `
             <td>
-                <span style="font-weight: 500; color: #0f172a;">${escapeHtml(task.title)}</span>
+                <span class="task-title">${escapeHtml(task.title)}</span>
             </td>
             <td>
-                <span class="badge" style="background: ${categoryColor}20; color: ${categoryColor}; border: 1px solid ${categoryColor}40;">
+                <span class="badge category-badge" style="background: ${categoryColor}20; color: ${categoryColor}; border: 1px solid ${categoryColor}40;">
                     ${escapeHtml(categoryName)}
                 </span>
             </td>
-            <td style="color: #64748b;">${formatDate(task.dueDate)}</td>
+            <td class="text-muted">${formatDate(task.dueDate)}</td>
             <td>${prioridadBadge}</td>
             <td>${estadoBadge}</td>
             <td>
@@ -114,6 +114,18 @@ function getPriorityBadge(priority) {
         'BAJA': 'background: #e0e7ff; color: #4338ca; border: 1px solid #c7d2fe;'
     };
     
+    // En modo oscuro, ajustar colores automáticamente
+    const isDark = document.body.classList.contains('dark-mode');
+    if (isDark) {
+        const darkStyles = {
+            'ALTA': 'background: #7f1d1d; color: #fca5a5; border: 1px solid #991b1b;',
+            'MEDIA': 'background: #78350f; color: #fcd34d; border: 1px solid #92400e;',
+            'BAJA': 'background: #312e81; color: #a5b4fc; border: 1px solid #3730a3;'
+        };
+        const style = darkStyles[priority] || darkStyles['MEDIA'];
+        return `<span class="badge" style="${style}">${priority}</span>`;
+    }
+    
     const style = styles[priority] || styles['MEDIA'];
     return `<span class="badge" style="${style}">${priority}</span>`;
 }
@@ -124,6 +136,24 @@ function getStatusBadge(status) {
         'EN_PROGRESO': 'background: #fef3c7; color: #d97706; border: 1px solid #fde68a;',
         'PENDIENTE': 'background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0;'
     };
+    
+    // En modo oscuro, ajustar colores automáticamente
+    const isDark = document.body.classList.contains('dark-mode');
+    if (isDark) {
+        const darkStyles = {
+            'COMPLETADA': 'background: #14532d; color: #86efac; border: 1px solid #166534;',
+            'EN_PROGRESO': 'background: #78350f; color: #fcd34d; border: 1px solid #92400e;',
+            'PENDIENTE': 'background: #334155; color: #cbd5e1; border: 1px solid #475569;'
+        };
+        const style = darkStyles[status] || darkStyles['PENDIENTE'];
+        const displayText = {
+            'COMPLETADA': 'Completada',
+            'EN_PROGRESO': 'En Progreso',
+            'PENDIENTE': 'Pendiente'
+        };
+        const text = displayText[status] || status;
+        return `<span class="badge" style="${style}">${text}</span>`;
+    }
     
     const displayText = {
         'COMPLETADA': 'Completada',
@@ -228,7 +258,7 @@ function escapeHtml(str) {
 
 // Búsqueda mejorada por nombre y categoría
 function initializeSearch() {
-    const searchInput = document.querySelector('.b');
+    const searchInput = document.querySelector('.search-input');
     if (!searchInput) return;
 
     searchInput.addEventListener('input', (e) => {
@@ -248,11 +278,33 @@ function initializeSearch() {
     });
 }
 
+// Observar cambios en el modo oscuro y actualizar badges dinámicamente
+function setupDarkModeObserver() {
+    const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                // Si cambió la clase del body, re-renderizar las tareas para actualizar colores
+                const tbody = document.getElementById('tasksTableBody');
+                if (tbody && tbody.children.length > 0) {
+                    // Recargar tareas solo si hay tareas en la tabla
+                    loadTasks();
+                }
+            }
+        });
+    });
+
+    observer.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class']
+    });
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     const tasksTableBody = document.getElementById('tasksTableBody');
     if (tasksTableBody) {
         loadTasks();
         initializeSearch();
+        setupDarkModeObserver(); // Observar cambios de tema
     }
 
     const taskForm = document.querySelector('form#taskForm');

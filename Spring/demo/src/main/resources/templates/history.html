@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Historial - Tareas Completadas</title>
     <link rel="stylesheet" th:href="@{/css/dashboard.css}">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
     <meta name="_csrf" th:content="${_csrf.token}"/>
     <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
 </head>
@@ -12,6 +13,12 @@
     <main>
         <!-- Sidebar lateral -->
         <div class="lateral">
+            <!-- Botón de cambio de tema -->
+            <button id="darkModeToggle" class="dark-mode-toggle" title="Cambiar tema">
+                <i data-lucide="moon" class="theme-icon moon-icon"></i>
+                <i data-lucide="sun" class="theme-icon sun-icon"></i>
+            </button>
+            
             <h2><span th:text="${userName}">Usuario</span></h2>
             
             <a th:href="@{/dashboard}" class="btns">Inicio</a>
@@ -29,7 +36,7 @@
         <div class="content-wrapper">
             <!-- Barra de búsqueda -->
             <div class="buscar">
-                <input type="text" class="b" id="searchHistory" placeholder="Buscar en historial...">
+                <input type="text" class="b search-input" id="searchHistory" placeholder="Buscar en historial...">
             </div>
             
             <!-- Sección de historial -->
@@ -55,6 +62,34 @@
         </div>
     </main>
     
+    <script th:src="@{/js/dark-mode.js}"></script>
     <script th:src="@{/js/history.js}"></script>
+    <script>
+        // Inicializar iconos Lucide
+        lucide.createIcons();
+
+        // Actualizar icono según el tema
+        const toggleButton = document.getElementById('darkModeToggle');
+        const moonIcon = document.querySelector('.moon-icon');
+        const sunIcon = document.querySelector('.sun-icon');
+
+        function updateThemeIcon() {
+            if (document.body.classList.contains('dark-mode')) {
+                moonIcon.style.display = 'none';
+                sunIcon.style.display = 'block';
+            } else {
+                moonIcon.style.display = 'block';
+                sunIcon.style.display = 'none';
+            }
+        }
+
+        updateThemeIcon();
+        toggleButton.addEventListener('click', () => {
+            setTimeout(updateThemeIcon, 50);
+        });
+
+        const observer = new MutationObserver(updateThemeIcon);
+        observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+    </script>
 </body>
 </html>

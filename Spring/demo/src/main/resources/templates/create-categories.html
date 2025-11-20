@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nueva Categoría - Gestión de Tareas</title>
     <link rel="stylesheet" th:href="@{/css/create-task.css}">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
     <meta name="_csrf" th:content="${_csrf.token}"/>
     <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
 </head>
@@ -12,6 +13,12 @@
     <main>
         <!-- Sidebar lateral -->
         <div class="lateral">
+            <!-- Botón de cambio de tema -->
+            <button id="darkModeToggle" class="dark-mode-toggle" title="Cambiar tema">
+                <i data-lucide="moon" class="theme-icon moon-icon"></i>
+                <i data-lucide="sun" class="theme-icon sun-icon"></i>
+            </button>
+            
             <h2><span th:text="${userName}">Usuario</span></h2>
             
             <a th:href="@{/dashboard}" class="btns">Inicio</a>
@@ -42,9 +49,8 @@
             <div class="prioridad">
                 <label for="color">Color</label>
                 <div style="display: flex; gap: 12px; align-items: center;">
-                    <input type="color" id="color" name="color" value="#3b82f6" 
-                           style="width: 60px; height: 44px; border: 1px solid #e2e8f0; border-radius: 10px; cursor: pointer;">
-                    <span id="colorValue" style="color: #64748b; font-size: 14px;">#3b82f6</span>
+                    <input type="color" id="color" name="color" value="#3b82f6">
+                    <span id="colorValue" style="font-size: 14px;">#3b82f6</span>
                 </div>
             </div>
 
@@ -55,6 +61,43 @@
         </form>
     </main>
     
+    <script th:src="@{/js/dark-mode.js}"></script>
     <script th:src="@{/js/categories.js}"></script>
+    <script>
+        // Inicializar iconos Lucide
+        lucide.createIcons();
+
+        // Actualizar icono según el tema
+        const toggleButton = document.getElementById('darkModeToggle');
+        const moonIcon = document.querySelector('.moon-icon');
+        const sunIcon = document.querySelector('.sun-icon');
+
+        function updateThemeIcon() {
+            if (document.body.classList.contains('dark-mode')) {
+                moonIcon.style.display = 'none';
+                sunIcon.style.display = 'block';
+            } else {
+                moonIcon.style.display = 'block';
+                sunIcon.style.display = 'none';
+            }
+        }
+
+        updateThemeIcon();
+        toggleButton.addEventListener('click', () => {
+            setTimeout(updateThemeIcon, 50);
+        });
+
+        const observer = new MutationObserver(updateThemeIcon);
+        observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+        
+        // Actualizar preview del color en tiempo real
+        const colorInput = document.getElementById('color');
+        const colorValue = document.getElementById('colorValue');
+        
+        colorInput.addEventListener('input', (e) => {
+            colorValue.textContent = e.target.value.toUpperCase();
+            colorValue.style.color = e.target.value;
+        });
+    </script>
 </body>
 </html>

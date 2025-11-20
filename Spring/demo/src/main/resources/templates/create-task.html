@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nueva Tarea - Gestión de Tareas</title>
     <link rel="stylesheet" th:href="@{/css/create-task.css}">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
     <meta name="_csrf" th:content="${_csrf.token}"/>
     <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
 </head>
@@ -12,6 +13,12 @@
     <main>
         <!-- Sidebar lateral -->
         <div class="lateral">
+            <!-- Botón de cambio de tema con iconos Lucide -->
+            <button id="darkModeToggle" class="dark-mode-toggle" title="Cambiar tema">
+                <i data-lucide="moon" class="theme-icon moon-icon"></i>
+                <i data-lucide="sun" class="theme-icon sun-icon"></i>
+            </button>
+            
             <h2><span th:text="${userName}">Usuario</span></h2>
             
             <a th:href="@{/dashboard}" class="btns">Inicio</a>
@@ -79,6 +86,44 @@
         </form>
     </main>
     
+    <!-- Scripts en orden correcto -->
+    <script th:src="@{/js/dark-mode.js}"></script>
+    <script th:src="@{/js/form-handler.js}"></script>
     <script th:src="@{/js/main.js}"></script>
+    
+    <script>
+        // Inicializar iconos Lucide
+        lucide.createIcons();
+
+        // Gestión del icono del botón de dark mode
+        const toggleButton = document.getElementById('darkModeToggle');
+        const moonIcon = document.querySelector('.moon-icon');
+        const sunIcon = document.querySelector('.sun-icon');
+
+        function updateThemeIcon() {
+            if (document.body.classList.contains('dark-mode')) {
+                moonIcon.style.display = 'none';
+                sunIcon.style.display = 'block';
+            } else {
+                moonIcon.style.display = 'block';
+                sunIcon.style.display = 'none';
+            }
+        }
+
+        // Ejecutar al cargar la página
+        updateThemeIcon();
+
+        // Actualizar cuando se hace clic en el botón
+        toggleButton.addEventListener('click', () => {
+            setTimeout(updateThemeIcon, 50);
+        });
+
+        // Observar cambios en la clase del body
+        const observer = new MutationObserver(updateThemeIcon);
+        observer.observe(document.body, { 
+            attributes: true, 
+            attributeFilter: ['class'] 
+        });
+    </script>
 </body>
 </html>
