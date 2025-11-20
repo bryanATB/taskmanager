@@ -26,8 +26,8 @@
             
             <a th:href="@{/dashboard}" class="btns">Inicio</a>
             <a th:href="@{/create-task}" class="btns">Nueva Tarea</a>
-            <a href="" class="btns">Categoria</a>
-            <a href="" class="btns">Historial</a>
+            <a th:href="@{/categories}" class="btns">Categorías</a>
+            <a th:href="@{/history}" class="btns">Historial</a>
             
             <form th:action="@{/logout}" method="post" style="display: contents;">
                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
@@ -37,7 +37,7 @@
 
         <!-- Contenedor del formulario -->
         <div class="form-container">
-            <form th:action="@{/save-task}" method="POST" id="taskForm" th:data-task-id="${task.id}">
+            <form th:action="@{/save-task}" method="POST" id="taskForm" th:attr="data-task-id=${task.id}">
                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                 
                 <div class="titulo">
@@ -54,6 +54,15 @@
                               th:text="${task.descripcion}"></textarea>
                 </div>
 
+                
+                <div class="estado">
+                    <label for="categoryId">Categoría</label>
+                    <select class="sestado" id="categoryId" name="categoryId">
+                        <option value="">Sin categoría</option>
+                        <!-- Las opciones se cargarán dinámicamente -->
+                    </select>
+                </div>
+
                 <div class="fecha">
                     <label for="dueDate">Fecha de entrega</label>
                     <input class="ifecha" type="date" id="dueDate" name="dueDate"
@@ -63,18 +72,18 @@
                 <div class="prioridad">
                     <label for="priority">Prioridad</label>
                     <select class="sprioridad" id="priority" name="priority">
-                        <option value="BAJA" th:selected="${task.prioridad.toString() == 'Baja'}">Baja</option>
-                        <option value="MEDIA" th:selected="${task.prioridad.toString() == 'Media'}">Media</option>
-                        <option value="ALTA" th:selected="${task.prioridad.toString() == 'Alta'}">Alta</option>
+                        <option value="Baja" th:selected="${task.prioridad.toString() == 'Baja'}">Baja</option>
+                        <option value="Media" th:selected="${task.prioridad.toString() == 'Media'}">Media</option>
+                        <option value="Alta" th:selected="${task.prioridad.toString() == 'Alta'}">Alta</option>
                     </select>
                 </div>
 
                 <div class="estado">
                     <label for="status">Estado</label>
                     <select class="sestado" id="status" name="status">
-                        <option value="PENDIENTE" th:selected="${task.estado.toString() == 'Pendiente'}">Pendiente</option>
-                        <option value="EN_PROGRESO" th:selected="${task.estado.toString() == 'En_progreso'}">En Progreso</option>
-                        <option value="COMPLETADA" th:selected="${task.estado.toString() == 'Completada'}">Completada</option>
+                        <option value="Pendiente" th:selected="${task.estado.toString() == 'Pendiente'}">Pendiente</option>
+                        <option value="En_progreso" th:selected="${task.estado.toString() == 'En_progreso'}">En Progreso</option>
+                        <option value="Completada" th:selected="${task.estado.toString() == 'Completada'}">Completada</option>
                     </select>
                 </div>
 
@@ -91,6 +100,20 @@
 
     <!-- Inicializa Lucide y cambia el ícono Luna ↔ Sol según el tema -->
     <script>
+
+        // Pre-seleccionar la categoría actual si existe (usamos `categoryId` proporcionado por el controlador)
+        document.addEventListener('DOMContentLoaded', function() {
+            const categoryId = /*[[${categoryId}]]*/ null;
+            if (categoryId) {
+                setTimeout(() => {
+                    const select = document.getElementById('categoryId');
+                    if (select) {
+                        select.value = categoryId;
+                    }
+                }, 100);
+            }
+        });
+
         lucide.createIcons();
 
         const toggleButton = document.getElementById('darkModeToggle');

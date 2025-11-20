@@ -147,16 +147,25 @@ public class TaskController {
     // Método para convertir String a Estado
     private Tarea.Estado parseEstado(String estadoStr) {
         if (estadoStr == null) return null;
+        String s = estadoStr.trim();
+        // Intentar coincidencia directa con el nombre del enum
         try {
-            return Tarea.Estado.valueOf(estadoStr.trim().replace(" ", "_").toUpperCase());
-        } catch (Exception e) {
-            // Si falla, intenta comparar manualmente
-            for (Tarea.Estado eVal : Tarea.Estado.values()) {
-                if (eVal.name().replace("_", " ").equalsIgnoreCase(estadoStr)) {
-                    return eVal;
-                }
+            return Tarea.Estado.valueOf(s);
+        } catch (Exception ignored) {}
+
+        // Reemplazar espacios por guiones bajos y volver a intentar
+        try {
+            return Tarea.Estado.valueOf(s.replace(" ", "_"));
+        } catch (Exception ignored) {}
+
+        // Igualar de forma insensible a mayúsculas/minúsculas y con/sin guion bajo
+        for (Tarea.Estado eVal : Tarea.Estado.values()) {
+            String name = eVal.name();
+            if (name.equalsIgnoreCase(s) || name.replace("_", " ").equalsIgnoreCase(s) || name.replace("_", " ").equalsIgnoreCase(s.replace("_", " "))) {
+                return eVal;
             }
         }
+
         return null;
     }
 
@@ -168,7 +177,9 @@ public class TaskController {
         map.put("description", tarea.getDescripcion() != null ? tarea.getDescripcion() : "");
         map.put("dueDate", tarea.getFechaLimite() != null ? tarea.getFechaLimite().toString() : "");
         map.put("priority", tarea.getPrioridad() != null ? tarea.getPrioridad().toString().toUpperCase() : "MEDIA");
-        map.put("status", tarea.getEstado() != null ? tarea.getEstado().toString().replace("_", " ").toUpperCase() : "PENDIENTE");
+        // Enviamos el estado en mayúsculas con guiones bajos para que el cliente
+        // (JS) lo maneje fácilmente: PENDIENTE, EN_PROGRESO, COMPLETADA
+        map.put("status", tarea.getEstado() != null ? tarea.getEstado().toString().toUpperCase() : "PENDIENTE");
         
         // Devolver objeto completo de categoría con todos sus datos
         if (tarea.getCategoria() != null) {
@@ -392,11 +403,21 @@ public class TaskController {
             taskData.put("historialId", h.getId());
             taskData.put("titulo", h.getTitulo());
             taskData.put("descripcion", h.getDescripcion());
-            taskData.put("categoriaNombre", h.getCategoriaNombre());
             taskData.put("fechaLimite", h.getFechaLimite());
             taskData.put("prioridad", h.getTarea().getPrioridad());
             taskData.put("estado", "Completada");
-            
+
+            // Para compatibilidad con la plantilla `view-task.html` que espera
+            // `task.categoria.nombre`, construimos un objeto `categoria` con la
+            // propiedad `nombre` cuando exista nombre de categoría en el historial.
+            if (h.getCategoriaNombre() != null) {
+                Map<String, Object> categoriaMap = new HashMap<>();
+                categoriaMap.put("nombre", h.getCategoriaNombre());
+                taskData.put("categoria", categoriaMap);
+            } else {
+                taskData.put("categoria", null);
+            }
+
             model.addAttribute("task", taskData);
             model.addAttribute("isHistory", true);
             return "view-task";
