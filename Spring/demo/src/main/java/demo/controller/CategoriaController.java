@@ -3,6 +3,7 @@ package demo.controller;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.ArrayList;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,10 +51,22 @@ public class CategoriaController {
     
     @GetMapping("/api/categories")
     @ResponseBody
-    public List<Categoria> getAllCategories(Authentication auth) {
+    public List<Map<String, Object>> getAllCategories(Authentication auth) {
         Usuario usuario = (Usuario) auth.getPrincipal();
         Usuario managedUser = usuarioRepository.findById(usuario.getId()).orElse(usuario);
-        return categoriaService.getCategoriasByUsuario(managedUser);
+        List<Categoria> categorias = categoriaService.getCategoriasByUsuario(managedUser);
+
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (Categoria c : categorias) {
+            Map<String, Object> m = new HashMap<>();
+            m.put("id", c.getId());
+            m.put("nombre", c.getNombre());
+            m.put("descripcion", c.getDescripcion());
+            m.put("color", c.getColor());
+            result.add(m);
+        }
+
+        return result;
     }
     
     @PostMapping("/api/categories")
