@@ -299,8 +299,27 @@ public class TaskController {
             Tarea t = tarea.get();
             if (t.getPrioridad() == null) t.setPrioridad(Tarea.Prioridad.Media);
             if (t.getEstado() == null) t.setEstado(Tarea.Estado.Pendiente);
-            model.addAttribute("task", t);
+
+            // Construir un Map uniforme para la vista, igual que la vista desde historial
+            Map<String, Object> taskData = new HashMap<>();
+            taskData.put("id", t.getId());
+            taskData.put("titulo", t.getTitulo());
+            taskData.put("descripcion", t.getDescripcion());
+            taskData.put("fechaLimite", t.getFechaLimite());
+            taskData.put("prioridad", t.getPrioridad());
+            taskData.put("estado", t.getEstado());
+
+            if (t.getCategoria() != null) {
+                Map<String, Object> categoriaMap = new HashMap<>();
+                categoriaMap.put("nombre", t.getCategoria().getNombre());
+                taskData.put("categoria", categoriaMap);
+            } else {
+                taskData.put("categoria", null);
+            }
+
+            model.addAttribute("task", taskData);
             model.addAttribute("categoryId", t.getCategoria() != null ? t.getCategoria().getId() : null);
+            model.addAttribute("isHistory", false);
             return "view-task";
         }
         return "redirect:/dashboard";
