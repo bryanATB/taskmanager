@@ -128,6 +128,50 @@ public ResponseEntity<?> saveTask(@RequestBody Map<String, Object> payload, Auth
     }
 }
 
+        // Método para convertir String a Prioridad
+        private Tarea.Prioridad parsePrioridad(String prioridadStr) {
+            if (prioridadStr == null) return null;
+            try {
+                return Tarea.Prioridad.valueOf(prioridadStr.trim().substring(0, 1).toUpperCase() + prioridadStr.trim().substring(1).toLowerCase());
+            } catch (Exception e) {
+                // Si falla, intenta comparar manualmente
+                for (Tarea.Prioridad p : Tarea.Prioridad.values()) {
+                    if (p.name().equalsIgnoreCase(prioridadStr)) {
+                        return p;
+                    }
+                }
+            }
+            return null;
+        }
+
+        // Método para convertir String a Estado
+        private Tarea.Estado parseEstado(String estadoStr) {
+            if (estadoStr == null) return null;
+            try {
+                return Tarea.Estado.valueOf(estadoStr.trim().replace(" ", "_").toUpperCase());
+            } catch (Exception e) {
+                // Si falla, intenta comparar manualmente
+                for (Tarea.Estado eVal : Tarea.Estado.values()) {
+                    if (eVal.name().replace("_", " ").equalsIgnoreCase(estadoStr)) {
+                        return eVal;
+                    }
+                }
+            }
+            return null;
+        }
+
+        // Método para convertir Tarea a Map<String, Object>
+        private Map<String, Object> convertTareaToMap(Tarea tarea) {
+            Map<String, Object> map = new HashMap<>();
+            map.put("id", tarea.getId());
+            map.put("title", tarea.getTitulo());
+            map.put("description", tarea.getDescripcion() != null ? tarea.getDescripcion() : "");
+            map.put("dueDate", tarea.getFechaLimite() != null ? tarea.getFechaLimite().toString() : "");
+            map.put("priority", tarea.getPrioridad() != null ? tarea.getPrioridad().toString().toUpperCase() : "MEDIA");
+            map.put("status", tarea.getEstado() != null ? tarea.getEstado().toString().replace("_", " ").toUpperCase() : "PENDIENTE");
+            map.put("category", tarea.getCategoria() != null ? tarea.getCategoria().getNombre() : "Sin categoría");
+            return map;
+        }
     @PostMapping(value = "/save-task", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     public String saveTaskForm(@RequestParam Map<String, String> params, Authentication auth, RedirectAttributes redirectAttributes) {
         try {
@@ -271,13 +315,93 @@ public List<Map<String, Object>> getActiveTasks(Authentication auth) {
 @ResponseBody
 public List<Map<String, Object>> getCompletedTasks(Authentication auth) {
     Usuario usuario = (Usuario) auth.getPrincipal();
-    List<Tarea> tareas = tareaRepository.findByUsuarioIdAndEstado(
+    List<Historial> historial = historialRepository.findByUsuarioIdAndAccionOrderByFechaDesc(
         usuario.getId(), 
-        Tarea.Estado.Completada
+        "Tarea completada"
     );
     
-    return tareas.stream().map(this::convertTareaToMap).collect(Collectors.toList());
+    return historial.stream().map(h -> {
+        Map<String, Object> map = new HashMap<>();
+        map.put("id", h.getTarea().getId());
+        map.put("historialId", h.getId());
+        map.put("title", h.getTitulo());
+        map.put("description", h.getDescripcion() != null ? h.getDescripcion() : "");
+        map.put("category", h.getCategoriaNombre() != null ? h.getCategoriaNombre() : "Sin categoría");
+        map.put("dueDate", h.getFechaLimite() != null ? h.getFechaLimite().toString() : "");
+        map.put("priority", h.getTarea().getPrioridad().toString().toUpperCase());
+        map.put("status", "COMPLETADA");
+        return map;
+    }).collect(Collectors.toList());
 }
+
+@PostMapping("/tasks/{id}/restore")
+@ResponseBody
+public ResponseEntity<?> restoreTask(@PathVariable Integer id, Authentication auth) {
+    try {
+        Usuario usuario = (Usuario) auth.getPrincipal();
+        Optional<Tarea> tareaOpt = tareaRepository.findById(id);
+        
+        if (tareaOpt.isEmpty() || !tareaOpt.get().getUsuario().getId().equals(usuario.getId())) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(Map.of("error", "Tarea no encontrada"));
+        }
+        
+        Tarea tarea = tareaOpt.get();
+        
+        // Cambiar el estado a Pendiente
+        tarea.setEstado(Tarea.Estado.Pendiente);
+        tareaRepository.save(tarea);
+        
+        // Eliminar los registros de "Tarea completada" del historial
+        List<Historial> historialesCompletados = historialRepository.findByTareaIdAndAccion(
+            tarea.getId(), 
+            "Tarea completada"
+        );
+        
+        if (!historialesCompletados.isEmpty()) {
+            historialRepository.deleteAll(historialesCompletados);
+        }
+        
+        // Registrar la restauración en el historial (opcional)
+        historialRepository.save(new Historial(tarea, usuario, "Tarea restaurada"));
+        
+        return ResponseEntity.ok(Map.of("success", true, "message", "Tarea restaurada al dashboard"));
+    } catch (Exception e) {
+        logger.error("Error restaurando tarea", e);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body(Map.of("error", "Error al restaurar la tarea"));
+    }
+}
+
+@GetMapping("/view-history/{historialId}")
+public String viewHistoryTask(@PathVariable Integer historialId, Model model, Authentication auth) {
+    Usuario usuario = (Usuario) auth.getPrincipal();
+    model.addAttribute("userName", usuario.getNombre());
+    
+    Optional<Historial> historialOpt = historialRepository.findById(historialId);
+    
+    if (historialOpt.isPresent() && historialOpt.get().getUsuario().getId().equals(usuario.getId())) {
+        Historial h = historialOpt.get();
+        
+        // Crear un objeto Map con los datos del historial para mostrar en la vista
+        Map<String, Object> taskData = new HashMap<>();
+        taskData.put("id", h.getTarea().getId());
+        taskData.put("historialId", h.getId());
+        taskData.put("titulo", h.getTitulo());
+        taskData.put("descripcion", h.getDescripcion());
+        taskData.put("categoriaNombre", h.getCategoriaNombre());
+        taskData.put("fechaLimite", h.getFechaLimite());
+        taskData.put("prioridad", h.getTarea().getPrioridad());
+        taskData.put("estado", "Completada");
+        
+        model.addAttribute("task", taskData);
+        model.addAttribute("isHistory", true);
+        return "view-task";
+    }
+    
+    return "redirect:/history";
+}
+
 
     @DeleteMapping("/tasks/{id}")
 @ResponseBody
@@ -346,7 +470,7 @@ public ResponseEntity<?> updateTask(@PathVariable Integer id, @RequestBody Map<S
             }
         }
         
-        // *** NUEVO: Actualizar categoría ***
+        // Actualizar categoría
         Object categoriaIdObj = payload.get("categoryId");
         if (categoriaIdObj != null) {
             if (categoriaIdObj.toString().isEmpty()) {
@@ -364,63 +488,24 @@ public ResponseEntity<?> updateTask(@PathVariable Integer id, @RequestBody Map<S
         
         Tarea saved = tareaRepository.save(tarea);
         
-        // Registrar en historial el cambio
-        String accion = "Tarea actualizada";
-        if (estadoAnterior != saved.getEstado()) {
-            accion = "Estado cambiado de " + estadoAnterior + " a " + saved.getEstado();
+        // Si la tarea se completó, guardar en historial
+        if (saved.getEstado() == Tarea.Estado.Completada && estadoAnterior != Tarea.Estado.Completada) {
+            historialRepository.save(new Historial(saved, usuario, "Tarea completada"));
+        } else {
+            // Registrar otros cambios
+            String accion = "Tarea actualizada";
+            if (estadoAnterior != saved.getEstado()) {
+                accion = "Estado cambiado de " + estadoAnterior + " a " + saved.getEstado();
+            }
+            historialRepository.save(new Historial(saved, usuario, accion));
         }
-        historialRepository.save(new Historial(saved, usuario, accion));
         
         return ResponseEntity.ok(convertTareaToMap(saved));
     } catch (Exception e) {
         logger.error("Error actualizando tarea", e);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
             .body(Map.of("error", "Error al actualizar la tarea: " + e.getMessage()));
-        }
     }
-
-    private Map<String, Object> convertTareaToMap(Tarea tarea) {
-        Map<String, Object> map = new HashMap<>();
-        map.put("id", tarea.getId());
-        map.put("title", tarea.getTitulo());
-        map.put("description", tarea.getDescripcion() != null ? tarea.getDescripcion() : "");
-        map.put("dueDate", tarea.getFechaLimite() != null ? tarea.getFechaLimite().toString() : "");
-        map.put("priority", tarea.getPrioridad().toString().toUpperCase());
-        map.put("status", tarea.getEstado().toString().replace("_", " ").toUpperCase());
-
-        // Incluir información de la categoría
-        if (tarea.getCategoria() != null) {
-            Map<String, Object> categoriaMap = new HashMap<>();
-            categoriaMap.put("id", tarea.getCategoria().getId());
-            categoriaMap.put("nombre", tarea.getCategoria().getNombre());
-            categoriaMap.put("color", tarea.getCategoria().getColor());
-            map.put("category", categoriaMap);
-        }
-
-        return map;
-    }
-
-    // Helpers para parsear prioridades/estados aceptando mayúsculas, guiones bajos o espacios
-    private Tarea.Prioridad parsePrioridad(String s) {
-        if (s == null) return null;
-        String norm = s.replace(" ", "_").toLowerCase();
-        for (Tarea.Prioridad p : Tarea.Prioridad.values()) {
-            if (p.name().toLowerCase().equals(norm) || p.name().toLowerCase().equals(norm.replace("_", ""))) {
-                return p;
-            }
-        }
-        return null;
-    }
-
-    private Tarea.Estado parseEstado(String s) {
-        if (s == null) return null;
-        String norm = s.replace(" ", "_").toLowerCase();
-        for (Tarea.Estado e : Tarea.Estado.values()) {
-            if (e.name().toLowerCase().equals(norm) || e.name().toLowerCase().equals(norm.replace("_", ""))) {
-                return e;
-            }
-        }
-        return null;
-    }
+}
 
 }

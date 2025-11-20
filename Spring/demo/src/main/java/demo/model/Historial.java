@@ -1,5 +1,6 @@
 package demo.model;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
@@ -35,6 +36,19 @@ public class Historial {
     @Column(nullable = false)
     private LocalDateTime fecha;
     
+    // Nuevos campos para guardar datos de la tarea completada
+    @Column(length = 150)
+    private String titulo;
+    
+    @Column(columnDefinition = "TEXT")
+    private String descripcion;
+    
+    @Column(name = "categoria_nombre", length = 50)
+    private String categoriaNombre;
+    
+    @Column(name = "fecha_limite")
+    private LocalDate fechaLimite;
+    
     @PrePersist
     protected void onCreate() {
         fecha = LocalDateTime.now();
@@ -46,17 +60,43 @@ public class Historial {
         this.tarea = tarea;
         this.usuario = usuario;
         this.accion = accion;
+        
+        // Si la acción es "Tarea completada", guardar los datos
+        if (accion != null && accion.equals("Tarea completada")) {
+            this.titulo = tarea.getTitulo();
+            this.descripcion = tarea.getDescripcion();
+            this.fechaLimite = tarea.getFechaLimite();
+            if (tarea.getCategoria() != null) {
+                this.categoriaNombre = tarea.getCategoria().getNombre();
+            }
+        }
     }
     
     // Getters y Setters
     public Integer getId() { return id; }
     public void setId(Integer id) { this.id = id; }
+    
     public Tarea getTarea() { return tarea; }
     public void setTarea(Tarea tarea) { this.tarea = tarea; }
+    
     public Usuario getUsuario() { return usuario; }
     public void setUsuario(Usuario usuario) { this.usuario = usuario; }
+    
     public String getAccion() { return accion; }
     public void setAccion(String accion) { this.accion = accion; }
+    
     public LocalDateTime getFecha() { return fecha; }
     public void setFecha(LocalDateTime fecha) { this.fecha = fecha; }
+    
+    public String getTitulo() { return titulo; }
+    public void setTitulo(String titulo) { this.titulo = titulo; }
+    
+    public String getDescripcion() { return descripcion; }
+    public void setDescripcion(String descripcion) { this.descripcion = descripcion; }
+    
+    public String getCategoriaNombre() { return categoriaNombre; }
+    public void setCategoriaNombre(String categoriaNombre) { this.categoriaNombre = categoriaNombre; }
+    
+    public LocalDate getFechaLimite() { return fechaLimite; }
+    public void setFechaLimite(LocalDate fechaLimite) { this.fechaLimite = fechaLimite; }
 }

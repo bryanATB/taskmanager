@@ -14,7 +14,7 @@ function makeHeaders() {
     return headers;
 }
 
-// Cargar tareas completadas
+// Cargar tareas completadas desde el historial
 async function loadCompletedTasks() {
     try {
         const response = await fetch('/api/tasks/completed', { 
@@ -52,23 +52,22 @@ function renderHistoryTasks(tasks) {
         const tr = document.createElement('tr');
         
         const prioridadBadge = getPriorityBadge(task.priority || 'MEDIA');
-        const categoryName = task.category ? task.category.nombre : 'Sin categoría';
-        const categoryColor = task.category ? task.category.color : '#94a3b8';
+        const categoryName = task.category || 'Sin categoría';
         
         tr.innerHTML = `
             <td>
-                <span style="font-weight: 500; color: #0f172a;">${escapeHtml(task.title)}</span>
+                <span style="font-weight: 500; color: var(--text-primary);">${escapeHtml(task.title)}</span>
             </td>
             <td>
-                <span class="badge" style="background: ${categoryColor}20; color: ${categoryColor}; border: 1px solid ${categoryColor}40;">
+                <span class="badge" style="background: #e0e7ff; color: #4338ca; border: 1px solid #c7d2fe;">
                     ${escapeHtml(categoryName)}
                 </span>
             </td>
-            <td style="color: #64748b;">${formatDate(task.dueDate)}</td>
+            <td style="color: var(--text-secondary);">${formatDate(task.dueDate)}</td>
             <td>${prioridadBadge}</td>
             <td>
                 <div class="action-buttons-table">
-                    <a href="/view-task/${task.id}" class="btn-table btn-view">Ver</a>
+                    <a href="/view-history/${task.historialId}" class="btn-table btn-view">Ver</a>
                     <button onclick="restoreTask(${task.id})" class="btn-table btn-edit">Restaurar</button>
                     <button onclick="deleteTask(${task.id})" class="btn-table btn-delete">Eliminar</button>
                 </div>
@@ -80,24 +79,24 @@ function renderHistoryTasks(tasks) {
 
 // Restaurar tarea (marcar como pendiente)
 async function restoreTask(id) {
-    if (!confirm('¿Deseas restaurar esta tarea y marcarla como pendiente?')) {
+    if (!confirm('¿Deseas restaurar esta tarea al dashboard? Se eliminará del historial.')) {
         return;
     }
 
     try {
-        const task = { status: 'PENDIENTE' };
-        
-        const response = await fetch(`/tasks/${id}`, {
+        const response = await fetch(`/tasks/${id}/restore`, {
             headers: makeHeaders(),
-            method: 'PUT',
-            body: JSON.stringify(task)
+            method: 'POST'
         });
 
         if (response.ok) {
-            showNotification('Tarea restaurada correctamente', 'success');
+            const result = await response.json();
+            showNotification(result.message || 'Tarea restaurada correctamente', 'success');
+            // Recargar el historial para que desaparezca la tarea restaurada
             loadCompletedTasks();
         } else {
-            showNotification('Error al restaurar la tarea', 'error');
+            const error = await response.json();
+            showNotification(error.error || 'Error al restaurar la tarea', 'error');
         }
     } catch (error) {
         console.error('Error:', error);
@@ -135,6 +134,17 @@ function getPriorityBadge(priority) {
         'MEDIA': 'background: #fef3c7; color: #d97706; border: 1px solid #fde68a;',
         'BAJA': 'background: #e0e7ff; color: #4338ca; border: 1px solid #c7d2fe;'
     };
+    
+    const isDark = document.body.classList.contains('dark-mode');
+    if (isDark) {
+        const darkStyles = {
+            'ALTA': 'background: #7f1d1d; color: #fca5a5; border: 1px solid #991b1b;',
+            'MEDIA': 'background: #78350f; color: #fcd34d; border: 1px solid #92400e;',
+            'BAJA': 'background: #312e81; color: #a5b4fc; border: 1px solid #3730a3;'
+        };
+        const style = darkStyles[priority] || darkStyles['MEDIA'];
+        return `<span class="badge" style="${style}">${priority}</span>`;
+    }
     
     const style = styles[priority] || styles['MEDIA'];
     return `<span class="badge" style="${style}">${priority}</span>`;

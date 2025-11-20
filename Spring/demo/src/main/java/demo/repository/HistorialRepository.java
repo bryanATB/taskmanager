@@ -1,4 +1,3 @@
-
 package demo.repository;
 
 import java.util.List;
@@ -18,4 +17,10 @@ public interface HistorialRepository extends JpaRepository<Historial, Integer> {
     
     // Buscar historial por tarea ordenado por fecha
     List<Historial> findByTareaIdOrderByFechaDesc(Integer tareaId);
+    
+    // Buscar solo tareas completadas por usuario
+    List<Historial> findByUsuarioIdAndAccionOrderByFechaDesc(Integer usuarioId, String accion);
+
+    //Buscar por tarea y acción específica
+    List<Historial> findByTareaIdAndAccion(Integer tareaId, String accion);
 }
