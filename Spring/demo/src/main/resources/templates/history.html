@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Historial - Tareas Completadas</title>
-    <link rel="stylesheet" th:href="@{/css/dashboard.css}">
+    <link rel="stylesheet" th:href="@{/css/history.css}">
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
     <meta name="_csrf" th:content="${_csrf.token}"/>
     <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
@@ -34,14 +34,14 @@
 
         <!-- Contenedor principal -->
         <div class="content-wrapper">
-            <!-- Barra de búsqueda -->
-            <div class="buscar">
-                <input type="text" class="b search-input" id="searchHistory" placeholder="Buscar en historial...">
-            </div>
-            
             <!-- Sección de historial -->
             <div class="menu">
-                <h3>Tareas Completadas</h3>
+                <div class="menu-header">
+                    <h3>Tareas Completadas</h3>
+                    <div class="buscar">
+                        <input type="text" class="b search-input" id="searchHistory" placeholder="Buscar en historial...">
+                    </div>
+                </div>
                 <table>
                     <thead>
                         <tr>

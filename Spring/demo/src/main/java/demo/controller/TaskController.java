@@ -287,6 +287,49 @@ public class TaskController {
         }
         return "redirect:/dashboard";
     }
+    // Agregar estos métodos a TaskController.java
+
+    @GetMapping("/api/tasks/proximas-vencer")
+    @ResponseBody
+    public List<Map<String, Object>> getProximasAVencer(Authentication auth) {
+        Usuario usuario = (Usuario) auth.getPrincipal();
+        LocalDate hoy = LocalDate.now();
+        LocalDate dentroTresDias = hoy.plusDays(3);
+        
+        List<Tarea> tareas = tareaRepository.findProximasAVencer(
+            usuario.getId(), 
+            hoy, 
+            dentroTresDias
+        );
+        
+        return tareas.stream().map(this::convertTareaToMap).collect(Collectors.toList());
+    }
+
+    @GetMapping("/api/tasks/vencidas")
+    @ResponseBody
+    public List<Map<String, Object>> getVencidas(Authentication auth) {
+        Usuario usuario = (Usuario) auth.getPrincipal();
+        LocalDate hoy = LocalDate.now();
+        
+        List<Tarea> tareas = tareaRepository.findVencidas(usuario.getId(), hoy);
+        
+        return tareas.stream().map(this::convertTareaToMap).collect(Collectors.toList());
+    }
+
+    @GetMapping("/api/stats")
+    @ResponseBody
+    public Map<String, Object> getStats(Authentication auth) {
+        Usuario usuario = (Usuario) auth.getPrincipal();
+        LocalDate hoy = LocalDate.now();
+        
+        Map<String, Object> stats = new HashMap<>();
+        stats.put("totalActivas", tareaRepository.countActivasByUsuarioId(usuario.getId()));
+        stats.put("vencenHoy", tareaRepository.countVencenHoyByUsuarioId(usuario.getId(), hoy));
+        stats.put("prioridadAlta", tareaRepository.countPrioridadAltaByUsuarioId(usuario.getId()));
+        stats.put("completadasHoy", tareaRepository.countCompletadasEnFecha(usuario.getId(), hoy));
+        
+        return stats;
+    }
 
     @GetMapping("/view-task/{id}")
     public String viewTask(@PathVariable Integer id, Model model, Authentication auth) {

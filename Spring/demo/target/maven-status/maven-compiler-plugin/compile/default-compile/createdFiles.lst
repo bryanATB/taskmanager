@@ -8,6 +8,7 @@ demo\controller\CategoriaController.class
 demo\model\Tarea$Prioridad.class
 demo\model\Subtarea.class
 demo\DemoApplication.class
+demo\model\TaskStatsDTO.class
 demo\controller\MainController.class
 demo\DataLoader.class
 demo\model\Historial.class

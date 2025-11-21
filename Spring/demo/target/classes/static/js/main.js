@@ -313,3 +313,91 @@ document.addEventListener('DOMContentLoaded', function() {
         loadCategoriesSelect();
     }
 });
+// Agregar al final de main.js
+
+async function loadAlerts() {
+    try {
+        const [proximasResponse, vencidasResponse] = await Promise.all([
+            fetch('/api/tasks/proximas-vencer', { headers: makeHeaders() }),
+            fetch('/api/tasks/vencidas', { headers: makeHeaders() })
+        ]);
+        
+        const proximas = await proximasResponse.json();
+        const vencidas = await vencidasResponse.json();
+        
+        renderAlerts(proximas, vencidas);
+    } catch (error) {
+        console.error('Error cargando alertas:', error);
+    }
+}
+
+function renderAlerts(proximas, vencidas) {
+    const alertsContainer = document.getElementById('alertsContainer');
+    if (!alertsContainer) return;
+    
+    alertsContainer.innerHTML = '';
+    
+    // Mostrar tareas vencidas
+    if (vencidas.length > 0) {
+        const vencidasDiv = document.createElement('div');
+        vencidasDiv.className = 'alert-box alert-danger';
+        vencidasDiv.innerHTML = `
+            <div class="alert-header">
+                <i data-lucide="alert-triangle"></i>
+                <h4>⚠️ Tareas Vencidas (${vencidas.length})</h4>
+            </div>
+            <ul class="alert-list">
+                ${vencidas.map(t => `
+                    <li>
+                        <a href="/view-task/${t.id}">${escapeHtml(t.title)}</a>
+                        <span class="alert-date">Venció: ${formatDate(t.dueDate)}</span>
+                    </li>
+                `).join('')}
+            </ul>
+        `;
+        alertsContainer.appendChild(vencidasDiv);
+    }
+    
+    // Mostrar tareas próximas a vencer
+    if (proximas.length > 0) {
+        const proximasDiv = document.createElement('div');
+        proximasDiv.className = 'alert-box alert-warning';
+        proximasDiv.innerHTML = `
+            <div class="alert-header">
+                <i data-lucide="clock"></i>
+                <h4>🔔 Próximas a Vencer (${proximas.length})</h4>
+            </div>
+            <ul class="alert-list">
+                ${proximas.map(t => `
+                    <li>
+                        <a href="/view-task/${t.id}">${escapeHtml(t.title)}</a>
+                        <span class="alert-date">Vence: ${formatDate(t.dueDate)}</span>
+                    </li>
+                `).join('')}
+            </ul>
+        `;
+        alertsContainer.appendChild(proximasDiv);
+    }
+    
+    // Re-inicializar iconos de Lucide
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
+}
+
+// Actualizar el DOMContentLoaded existente
+document.addEventListener('DOMContentLoaded', function() {
+    const tasksTableBody = document.getElementById('tasksTableBody');
+    if (tasksTableBody) {
+        loadTasks();
+        loadAlerts(); // NUEVO
+        initializeSearch();
+        setupDarkModeObserver();
+    }
+
+    const taskForm = document.querySelector('form#taskForm');
+    if (taskForm) {
+        taskForm.addEventListener('submit', handleTaskForm);
+        loadCategoriesSelect();
+    }
+});
