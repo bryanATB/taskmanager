@@ -46,6 +46,11 @@
                     <label>Categoría</label>
                     <p th:text="${task.categoria != null ? task.categoria.nombre : 'Sin categoría'}">Categoría</p>
                 </div>
+                
+                <div class="detail-group">
+                    <label>Fecha de Inicio</label>
+                    <p th:text="${task.fechaInicio != null ? #temporals.format(task.fechaInicio, 'dd/MM/yyyy') : 'No establecida'}">fechaCreacion</p>
+                </div>
 
                 <div class="detail-group">
                     <label>Fecha de Entrega</label>

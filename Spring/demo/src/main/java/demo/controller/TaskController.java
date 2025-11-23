@@ -68,7 +68,7 @@ public class TaskController {
             Tarea tarea = new Tarea();
             tarea.setTitulo((String) payload.get("title"));
             tarea.setDescripcion((String) payload.get("description"));
-            
+ 
             // Convertir fechaLimite
             String dueDateStr = (String) payload.get("dueDate");
             if (dueDateStr != null && !dueDateStr.isEmpty()) {
@@ -77,6 +77,17 @@ public class TaskController {
                     tarea.setFechaLimite(fechaLimite);
                 } catch (Exception e) {
                     logger.warn("Error parseando fecha: " + dueDateStr, e);
+                }
+            }
+            
+            // Convertir fechaInicio
+            String fechaInicioStr = (String) payload.get("startDate");
+            if (fechaInicioStr != null && !fechaInicioStr.isEmpty()) {
+                try {
+                    LocalDate fechaInicio = LocalDate.parse(fechaInicioStr.substring(0, 10));
+                    tarea.setFechaInicio(fechaInicio);
+                } catch (Exception e) {
+                    logger.warn("Error parseando fecha inicio: " + fechaInicioStr, e);
                 }
             }
             
@@ -176,6 +187,7 @@ public class TaskController {
         map.put("title", tarea.getTitulo());
         map.put("description", tarea.getDescripcion() != null ? tarea.getDescripcion() : "");
         map.put("dueDate", tarea.getFechaLimite() != null ? tarea.getFechaLimite().toString() : "");
+        map.put("startDate", tarea.getFechaInicio() != null ? tarea.getFechaInicio().toString() : "");
         map.put("priority", tarea.getPrioridad() != null ? tarea.getPrioridad().toString().toUpperCase() : "MEDIA");
         // Enviamos el estado en mayúsculas con guiones bajos para que el cliente
         // (JS) lo maneje fácilmente: PENDIENTE, EN_PROGRESO, COMPLETADA
@@ -332,40 +344,27 @@ public class TaskController {
     }
 
     @GetMapping("/view-task/{id}")
-    public String viewTask(@PathVariable Integer id, Model model, Authentication auth) {
+    public String viewTask(@PathVariable Integer id, Model model, Authentication auth,
+                           @RequestParam(defaultValue = "false") boolean history) {
+
         Usuario usuario = (Usuario) auth.getPrincipal();
-        model.addAttribute("userName", usuario.getNombre());
-        
-        Optional<Tarea> tarea = tareaRepository.findById(id);
-        
-        if (tarea.isPresent() && tarea.get().getUsuario().getId().equals(usuario.getId())) {
-            Tarea t = tarea.get();
-            if (t.getPrioridad() == null) t.setPrioridad(Tarea.Prioridad.Media);
-            if (t.getEstado() == null) t.setEstado(Tarea.Estado.Pendiente);
+        Optional<Tarea> optTarea = tareaRepository.findById(id);
 
-            // Construir un Map uniforme para la vista, igual que la vista desde historial
-            Map<String, Object> taskData = new HashMap<>();
-            taskData.put("id", t.getId());
-            taskData.put("titulo", t.getTitulo());
-            taskData.put("descripcion", t.getDescripcion());
-            taskData.put("fechaLimite", t.getFechaLimite());
-            taskData.put("prioridad", t.getPrioridad());
-            taskData.put("estado", t.getEstado());
-
-            if (t.getCategoria() != null) {
-                Map<String, Object> categoriaMap = new HashMap<>();
-                categoriaMap.put("nombre", t.getCategoria().getNombre());
-                taskData.put("categoria", categoriaMap);
-            } else {
-                taskData.put("categoria", null);
-            }
-
-            model.addAttribute("task", taskData);
-            model.addAttribute("categoryId", t.getCategoria() != null ? t.getCategoria().getId() : null);
-            model.addAttribute("isHistory", false);
-            return "view-task";
+        if (optTarea.isEmpty() || !optTarea.get().getUsuario().getId().equals(usuario.getId())) {
+            return "redirect:/dashboard";
         }
-        return "redirect:/dashboard";
+
+        Tarea t = optTarea.get();
+
+        // Defaults
+        if (t.getPrioridad() == null) t.setPrioridad(Tarea.Prioridad.Media);
+        if (t.getEstado() == null) t.setEstado(Tarea.Estado.Pendiente);
+
+        model.addAttribute("userName", usuario.getNombre());
+        model.addAttribute("task", t);
+        model.addAttribute("isHistory", history);
+
+        return "view-task"; // ← tu HTML de arriba
     }
 
     @GetMapping("/history")
@@ -403,6 +402,7 @@ public class TaskController {
             map.put("title", h.getTitulo());
             map.put("description", h.getDescripcion() != null ? h.getDescripcion() : "");
             map.put("category", h.getCategoriaNombre() != null ? h.getCategoriaNombre() : "Sin categoría");
+            map.put("startDate", h.getFechaInicio() != null ? h.getFechaInicio().toString() : ""); 
             map.put("dueDate", h.getFechaLimite() != null ? h.getFechaLimite().toString() : "");
             map.put("priority", h.getTarea().getPrioridad().toString().toUpperCase());
             map.put("status", "COMPLETADA");
@@ -451,42 +451,40 @@ public class TaskController {
 
     @GetMapping("/view-history/{historialId}")
     public String viewHistoryTask(@PathVariable Integer historialId, Model model, Authentication auth) {
-        Usuario usuario = (Usuario) auth.getPrincipal();
-        model.addAttribute("userName", usuario.getNombre());
+    Usuario usuario = (Usuario) auth.getPrincipal();
+    model.addAttribute("userName", usuario.getNombre());
+    
+    Optional<Historial> historialOpt = historialRepository.findById(historialId);
+    
+    if (historialOpt.isPresent() && historialOpt.get().getUsuario().getId().equals(usuario.getId())) {
+        Historial h = historialOpt.get();
         
-        Optional<Historial> historialOpt = historialRepository.findById(historialId);
-        
-        if (historialOpt.isPresent() && historialOpt.get().getUsuario().getId().equals(usuario.getId())) {
-            Historial h = historialOpt.get();
-            
-            // Crear un objeto Map con los datos del historial para mostrar en la vista
-            Map<String, Object> taskData = new HashMap<>();
-            taskData.put("id", h.getTarea().getId());
-            taskData.put("historialId", h.getId());
-            taskData.put("titulo", h.getTitulo());
-            taskData.put("descripcion", h.getDescripcion());
-            taskData.put("fechaLimite", h.getFechaLimite());
-            taskData.put("prioridad", h.getTarea().getPrioridad());
-            taskData.put("estado", "Completada");
+        // Crear un objeto Map con los datos del historial para mostrar en la vista
+        Map<String, Object> taskData = new HashMap<>();
+        taskData.put("id", h.getTarea().getId());
+        taskData.put("historialId", h.getId());
+        taskData.put("titulo", h.getTitulo());
+        taskData.put("descripcion", h.getDescripcion());
+        taskData.put("fechaLimite", h.getFechaLimite());
+        taskData.put("fechaInicio", h.getFechaInicio()); // ← AGREGAR ESTA LÍNEA
+        taskData.put("prioridad", h.getTarea().getPrioridad());
+        taskData.put("estado", "Completada");
 
-            // Para compatibilidad con la plantilla `view-task.html` que espera
-            // `task.categoria.nombre`, construimos un objeto `categoria` con la
-            // propiedad `nombre` cuando exista nombre de categoría en el historial.
-            if (h.getCategoriaNombre() != null) {
-                Map<String, Object> categoriaMap = new HashMap<>();
-                categoriaMap.put("nombre", h.getCategoriaNombre());
-                taskData.put("categoria", categoriaMap);
-            } else {
-                taskData.put("categoria", null);
-            }
-
-            model.addAttribute("task", taskData);
-            model.addAttribute("isHistory", true);
-            return "view-task";
+        if (h.getCategoriaNombre() != null) {
+            Map<String, Object> categoriaMap = new HashMap<>();
+            categoriaMap.put("nombre", h.getCategoriaNombre());
+            taskData.put("categoria", categoriaMap);
+        } else {
+            taskData.put("categoria", null);
         }
-        
-        return "redirect:/history";
-    }
+
+        model.addAttribute("task", taskData);
+        model.addAttribute("isHistory", true);
+        return "view-task";
+        }
+    
+    return "redirect:/history";
+   }
 
     @DeleteMapping("/tasks/{id}")
     @ResponseBody

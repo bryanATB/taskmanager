@@ -1,7 +1,10 @@
-// main.js - Actualización completa con soporte para categorías y modo oscuro
+// main.js - Versión completa con onclick funcionando
 
 const csrfToken = document.querySelector("meta[name='_csrf']")?.getAttribute("content");
 const csrfHeader = document.querySelector("meta[name='_csrf_header']")?.getAttribute("content");
+
+// Variables globales
+let proyectosDisponibles = [];
 
 function makeHeaders() {
     const headers = { 
@@ -14,7 +17,182 @@ function makeHeaders() {
     return headers;
 }
 
-// Cargar solo tareas activas (no completadas)
+// ========== FUNCIONES DE PROYECTOS (GLOBALES) ==========
+
+// Cargar proyectos disponibles
+window.loadProyectosDisponibles = async function() {
+    try {
+        const response = await fetch('/api/proyectos', { 
+            headers: makeHeaders() 
+        });
+        
+        if (!response.ok) {
+            console.log('No se pudieron cargar proyectos');
+            return;
+        }
+        
+        proyectosDisponibles = await response.json();
+        console.log('✅ Proyectos cargados:', proyectosDisponibles.length);
+    } catch (error) {
+        console.error('❌ Error cargando proyectos:', error);
+    }
+};
+
+// Mostrar modal para seleccionar proyecto - FUNCIÓN GLOBAL
+window.mostrarModalProyecto = function(tareaId, tareaTitulo) {
+    console.log('🔷 Abriendo modal para tarea:', tareaId, tareaTitulo);
+    
+    if (proyectosDisponibles.length === 0) {
+        alert('No hay proyectos disponibles. Crea un proyecto primero.');
+        return;
+    }
+    
+    // Remover modal existente si hay
+    const modalExistente = document.getElementById('modalProyecto');
+    if (modalExistente) {
+        modalExistente.remove();
+    }
+    
+    // Crear modal
+    const modal = document.createElement('div');
+    modal.id = 'modalProyecto';
+    modal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+        animation: fadeIn 0.2s ease;
+    `;
+    
+    const isDark = document.body.classList.contains('dark-mode');
+    const modalContent = document.createElement('div');
+    modalContent.style.cssText = `
+        background-color: ${isDark ? '#1e293b' : '#ffffff'};
+        border-radius: 16px;
+        padding: 24px;
+        width: 90%;
+        max-width: 500px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        animation: slideUp 0.3s ease;
+    `;
+    
+    // Generar opciones de proyectos
+    let opcionesHTML = '<option value="">Selecciona un proyecto...</option>';
+    proyectosDisponibles.forEach(p => {
+        opcionesHTML += `<option value="${p.id}">${escapeHtml(p.nombre)}</option>`;
+    });
+    
+    const textColor = isDark ? '#f1f5f9' : '#1e293b';
+    const secondaryColor = isDark ? '#cbd5e1' : '#64748b';
+    const bgColor = isDark ? '#334155' : '#f8fafc';
+    const borderColor = isDark ? '#475569' : '#e2e8f0';
+    
+    modalContent.innerHTML = `
+        <h3 style="margin: 0 0 16px 0; color: ${textColor}; font-size: 20px; font-weight: 600;">
+            Agregar a Proyecto
+        </h3>
+        <p style="margin-bottom: 20px; color: ${secondaryColor}; font-size: 14px;">
+            Tarea: <strong style="color: ${textColor};">${escapeHtml(tareaTitulo)}</strong>
+        </p>
+        <label style="display: block; margin-bottom: 8px; font-weight: 600; color: ${secondaryColor}; font-size: 12px; text-transform: uppercase;">
+            Seleccionar Proyecto:
+        </label>
+        <select id="selectProyecto" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid ${borderColor}; margin-bottom: 20px; background-color: ${bgColor}; color: ${textColor}; font-family: 'Inter', sans-serif; font-size: 14px;">
+            ${opcionesHTML}
+        </select>
+        <div style="display: flex; gap: 12px; justify-content: flex-end;">
+            <button id="btnCancelarModal" style="padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; background-color: ${bgColor}; color: ${secondaryColor}; font-weight: 500; font-family: 'Inter', sans-serif; font-size: 14px; transition: all 0.2s;">
+                Cancelar
+            </button>
+            <button id="btnConfirmarModal" style="padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; background-color: #3b82f6; color: white; font-weight: 500; font-family: 'Inter', sans-serif; font-size: 14px; transition: all 0.2s;">
+                Agregar
+            </button>
+        </div>
+    `;
+    
+    modal.appendChild(modalContent);
+    document.body.appendChild(modal);
+    
+    // Event listeners
+    document.getElementById('btnCancelarModal').addEventListener('click', () => {
+        cerrarModalProyecto();
+    });
+    
+    document.getElementById('btnConfirmarModal').addEventListener('click', () => {
+        confirmarAgregarProyecto(tareaId);
+    });
+    
+    // Cerrar al hacer clic fuera
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            cerrarModalProyecto();
+        }
+    });
+    
+    // Cerrar con ESC
+    const handleEsc = (e) => {
+        if (e.key === 'Escape') {
+            cerrarModalProyecto();
+            document.removeEventListener('keydown', handleEsc);
+        }
+    };
+    document.addEventListener('keydown', handleEsc);
+    
+    console.log('✅ Modal creado y mostrado');
+};
+
+// Cerrar modal - FUNCIÓN GLOBAL
+window.cerrarModalProyecto = function() {
+    const modal = document.getElementById('modalProyecto');
+    if (modal) {
+        modal.style.animation = 'fadeOut 0.2s ease';
+        setTimeout(() => {
+            modal.remove();
+        }, 200);
+    }
+};
+
+// Confirmar y agregar tarea al proyecto - FUNCIÓN GLOBAL
+window.confirmarAgregarProyecto = async function(tareaId) {
+    const select = document.getElementById('selectProyecto');
+    const proyectoId = select.value;
+    
+    if (!proyectoId) {
+        alert('Por favor selecciona un proyecto');
+        return;
+    }
+    
+    console.log('📤 Agregando tarea', tareaId, 'al proyecto', proyectoId);
+    
+    try {
+        const response = await fetch(`/api/proyectos/${proyectoId}/tareas/${tareaId}`, {
+            method: 'POST',
+            headers: makeHeaders()
+        });
+
+        if (response.ok) {
+            console.log('✅ Tarea agregada correctamente');
+            alert('✅ Tarea agregada al proyecto correctamente');
+            cerrarModalProyecto();
+        } else {
+            const error = await response.json();
+            console.error('❌ Error del servidor:', error);
+            alert('❌ ' + (error.error || 'Error al agregar la tarea al proyecto'));
+        }
+    } catch (error) {
+        console.error('❌ Error de red:', error);
+        alert('❌ Error al agregar la tarea al proyecto');
+    }
+};
+
+// ========== FUNCIONES DE TAREAS ==========
+
 async function loadTasks() {
     try {
         const response = await fetch('/api/tasks/active', { 
@@ -31,12 +209,11 @@ async function loadTasks() {
         console.error('Error al cargar las tareas:', error);
         const tbody = document.getElementById('tasksTableBody');
         if (tbody) {
-            tbody.innerHTML = '<tr><td colspan="6" class="text-center" style="color: #ef4444;">Error al cargar las tareas</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="7" class="text-center" style="color: #ef4444;">Error al cargar las tareas</td></tr>';
         }
     }
 }
 
-// Cargar categorías para el selector
 async function loadCategoriesSelect() {
     try {
         const response = await fetch('/api/categories', { 
@@ -69,7 +246,7 @@ function renderTasks(tasks) {
     tbody.innerHTML = '';
     
     if (!tasks || tasks.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" class="text-center">No hay tareas activas. <a href="/create-task" class="link-primary">Crea una nueva</a></td></tr>';
+        tbody.innerHTML = '<tr><td colspan="7" class="text-center">No hay tareas activas. <a href="/create-task" class="link-primary">Crea una nueva</a></td></tr>';
         return;
     }
 
@@ -79,9 +256,11 @@ function renderTasks(tasks) {
         const prioridadBadge = getPriorityBadge(task.priority || 'MEDIA');
         const estadoBadge = getStatusBadge(task.status || 'PENDIENTE');
         
-        // Obtener información de categoría
         const categoryName = task.category ? task.category.nombre : 'Sin categoría';
         const categoryColor = task.category ? task.category.color : '#94a3b8';
+        
+        // IMPORTANTE: Escapar comillas simples correctamente para onclick
+        const titleEscaped = escapeHtml(task.title).replace(/'/g, '&#39;');
         
         tr.innerHTML = `
             <td>
@@ -92,19 +271,36 @@ function renderTasks(tasks) {
                     ${escapeHtml(categoryName)}
                 </span>
             </td>
+            <td class="text-muted">${formatDate(task.startDate)}</td>
             <td class="text-muted">${formatDate(task.dueDate)}</td>
             <td>${prioridadBadge}</td>
             <td>${estadoBadge}</td>
             <td>
                 <div class="action-buttons-table">
-                    <a href="/view-task/${task.id}" class="btn-table btn-view">Ver</a>
-                    <a href="/edit-task/${task.id}" class="btn-table btn-edit">Editar</a>
-                    <button onclick="deleteTask(${task.id})" class="btn-table btn-delete">Eliminar</button>
+                    <a href="/view-task/${task.id}" class="btn-table btn-view" title="Ver tarea">
+                        <i data-lucide="eye"></i>
+                    </a>
+                    <a href="/edit-task/${task.id}" class="btn-table btn-edit" title="Editar tarea">
+                        <i data-lucide="edit"></i>
+                    </a>
+                    <button onclick="mostrarModalProyecto(${task.id}, '${titleEscaped}')" class="btn-table btn-proyecto" title="Agregar a proyecto">
+                        <i data-lucide="folder-plus"></i>
+                    </button>
+                    <button onclick="deleteTask(${task.id})" class="btn-table btn-delete" title="Eliminar tarea">
+                        <i data-lucide="trash-2"></i>
+                    </button>
                 </div>
             </td>
         `;
         tbody.appendChild(tr);
     });
+    
+    // Recrear iconos de Lucide después de agregar el contenido
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
+    
+    console.log('✅ Tareas renderizadas:', tasks.length);
 }
 
 function getPriorityBadge(priority) {
@@ -114,7 +310,6 @@ function getPriorityBadge(priority) {
         'BAJA': 'background: #e0e7ff; color: #4338ca; border: 1px solid #c7d2fe;'
     };
     
-    // En modo oscuro, ajustar colores automáticamente
     const isDark = document.body.classList.contains('dark-mode');
     if (isDark) {
         const darkStyles = {
@@ -137,7 +332,6 @@ function getStatusBadge(status) {
         'PENDIENTE': 'background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0;'
     };
     
-    // En modo oscuro, ajustar colores automáticamente
     const isDark = document.body.classList.contains('dark-mode');
     if (isDark) {
         const darkStyles = {
@@ -174,6 +368,7 @@ async function handleTaskForm(event) {
     const task = {
         title: form.querySelector('#title').value,
         description: form.querySelector('#description').value,
+        startDate: form.querySelector('#startDate')?.value || null,
         dueDate: form.querySelector('#dueDate').value,
         status: form.querySelector('#status').value,
         priority: form.querySelector('#priority')?.value,
@@ -208,7 +403,7 @@ async function handleTaskForm(event) {
     }
 }
 
-async function deleteTask(id) {
+window.deleteTask = async function(id) {
     if (!confirm('¿Estás seguro de que quieres eliminar esta tarea?')) {
         return;
     }
@@ -229,7 +424,7 @@ async function deleteTask(id) {
         console.error('Error:', error);
         showNotification('Error al eliminar la tarea', 'error');
     }
-}
+};
 
 function showNotification(message, type = 'info') {
     alert(message);
@@ -256,7 +451,6 @@ function escapeHtml(str) {
     return div.innerHTML;
 }
 
-// Búsqueda mejorada por nombre y categoría
 function initializeSearch() {
     const searchInput = document.querySelector('.search-input');
     if (!searchInput) return;
@@ -278,15 +472,12 @@ function initializeSearch() {
     });
 }
 
-// Observar cambios en el modo oscuro y actualizar badges dinámicamente
 function setupDarkModeObserver() {
     const observer = new MutationObserver((mutations) => {
         mutations.forEach((mutation) => {
             if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
-                // Si cambió la clase del body, re-renderizar las tareas para actualizar colores
                 const tbody = document.getElementById('tasksTableBody');
                 if (tbody && tbody.children.length > 0) {
-                    // Recargar tareas solo si hay tareas en la tabla
                     loadTasks();
                 }
             }
@@ -298,22 +489,6 @@ function setupDarkModeObserver() {
         attributeFilter: ['class']
     });
 }
-
-document.addEventListener('DOMContentLoaded', function() {
-    const tasksTableBody = document.getElementById('tasksTableBody');
-    if (tasksTableBody) {
-        loadTasks();
-        initializeSearch();
-        setupDarkModeObserver(); // Observar cambios de tema
-    }
-
-    const taskForm = document.querySelector('form#taskForm');
-    if (taskForm) {
-        taskForm.addEventListener('submit', handleTaskForm);
-        loadCategoriesSelect();
-    }
-});
-// Agregar al final de main.js
 
 async function loadAlerts() {
     try {
@@ -337,7 +512,6 @@ function renderAlerts(proximas, vencidas) {
     
     alertsContainer.innerHTML = '';
     
-    // Mostrar tareas vencidas
     if (vencidas.length > 0) {
         const vencidasDiv = document.createElement('div');
         vencidasDiv.className = 'alert-box alert-danger';
@@ -358,7 +532,6 @@ function renderAlerts(proximas, vencidas) {
         alertsContainer.appendChild(vencidasDiv);
     }
     
-    // Mostrar tareas próximas a vencer
     if (proximas.length > 0) {
         const proximasDiv = document.createElement('div');
         proximasDiv.className = 'alert-box alert-warning';
@@ -379,18 +552,139 @@ function renderAlerts(proximas, vencidas) {
         alertsContainer.appendChild(proximasDiv);
     }
     
-    // Re-inicializar iconos de Lucide
     if (typeof lucide !== 'undefined') {
         lucide.createIcons();
     }
 }
 
-// Actualizar el DOMContentLoaded existente
+// Agregar animaciones CSS dinámicamente
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    
+    @keyframes fadeOut {
+        from { opacity: 1; }
+        to { opacity: 0; }
+    }
+    
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    /* Estilos para botones con solo iconos */
+    .action-buttons-table {
+        display: flex;
+        gap: 8px;
+        justify-content: center;
+        align-items: center;
+    }
+    
+    .btn-table {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        padding: 0;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-decoration: none;
+    }
+    
+    .btn-table i {
+        width: 16px;
+        height: 16px;
+    }
+    
+    .btn-view {
+        background-color: #dbeafe;
+        color: #1e40af;
+    }
+    
+    .btn-view:hover {
+        background-color: #3b82f6;
+        color: #ffffff;
+        transform: translateY(-2px);
+    }
+    
+    .btn-edit {
+        background-color: #fef3c7;
+        color: #d97706;
+    }
+    
+    .btn-edit:hover {
+        background-color: #f59e0b;
+        color: #ffffff;
+        transform: translateY(-2px);
+    }
+    
+    .btn-proyecto {
+        background-color: #e0e7ff;
+        color: #4338ca;
+    }
+    
+    .btn-proyecto:hover {
+        background-color: #6366f1;
+        color: #ffffff;
+        transform: translateY(-2px);
+    }
+    
+    .btn-delete {
+        background-color: #fee2e2;
+        color: #dc2626;
+    }
+    
+    .btn-delete:hover {
+        background-color: #ef4444;
+        color: #ffffff;
+        transform: translateY(-2px);
+    }
+    
+    /* Modo oscuro */
+    .dark-mode .btn-view {
+        background-color: #1e3a8a;
+        color: #93c5fd;
+    }
+    
+    .dark-mode .btn-edit {
+        background-color: #78350f;
+        color: #fcd34d;
+    }
+    
+    .dark-mode .btn-proyecto {
+        background-color: #312e81;
+        color: #a5b4fc;
+    }
+    
+    .dark-mode .btn-delete {
+        background-color: #7f1d1d;
+        color: #fca5a5;
+    }
+`;
+document.head.appendChild(style);
+
+// Inicialización
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('🚀 Iniciando aplicación...');
+    
     const tasksTableBody = document.getElementById('tasksTableBody');
     if (tasksTableBody) {
+        console.log('📋 Dashboard detectado');
+        loadProyectosDisponibles();
         loadTasks();
-        loadAlerts(); // NUEVO
+        loadAlerts();
         initializeSearch();
         setupDarkModeObserver();
     }
@@ -400,4 +694,6 @@ document.addEventListener('DOMContentLoaded', function() {
         taskForm.addEventListener('submit', handleTaskForm);
         loadCategoriesSelect();
     }
+    
+    console.log('✅ Aplicación inicializada');
 });

@@ -41,6 +41,9 @@ public class Tarea {
     @Column(columnDefinition = "TEXT")
     private String descripcion;
     
+    @Column(name = "fecha_inicio")
+    private LocalDate fechaInicio;
+    
     @Column(name = "fecha_limite")
     private LocalDate fechaLimite;
     
@@ -64,7 +67,6 @@ public class Tarea {
     @OneToMany(mappedBy = "tarea", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Historial> historiales;
     
-    
     // ENUMS PÚBLICOS
     public enum Prioridad {
         Baja, Media, Alta
@@ -77,6 +79,9 @@ public class Tarea {
     @PrePersist
     protected void onCreate() {
         fechaCreacion = LocalDateTime.now();
+        if (fechaInicio == null) {
+            fechaInicio = LocalDate.now();
+        }
     }
     
     public Tarea() {}
@@ -125,6 +130,14 @@ public class Tarea {
     
     public void setDescripcion(String descripcion) {
         this.descripcion = descripcion;
+    }
+    
+    public LocalDate getFechaInicio() {
+        return fechaInicio;
+    }
+    
+    public void setFechaInicio(LocalDate fechaInicio) {
+        this.fechaInicio = fechaInicio;
     }
     
     public LocalDate getFechaLimite() {
