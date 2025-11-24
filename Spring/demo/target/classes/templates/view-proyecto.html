@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ver Proyecto - Gestión de Tareas</title>
+    <link rel="stylesheet" th:href="@{/css/view-proyecto.css}">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+</head>
+<body>
+    <main>
+        <!-- Sidebar lateral -->
+        <div class="lateral">
+            <button id="darkModeToggle" class="dark-mode-toggle" title="Cambiar tema">
+                <i data-lucide="moon" class="theme-icon moon-icon"></i>
+                <i data-lucide="sun" class="theme-icon sun-icon"></i>
+            </button>
+            
+            <h2><span th:text="${userName}">Usuario</span></h2>
+            
+            <a th:href="@{/dashboard}" class="btns">Inicio</a>
+            <a th:href="@{/create-task}" class="btns">Nueva Tarea</a>
+            <a th:href="@{/categories}" class="btns">Categorías</a>
+            <a th:href="@{/proyectos}" class="btns">Proyectos</a>
+            <a th:href="@{/notificaciones}" class="btns">Notificaciones</a>
+            <a th:href="@{/history}" class="btns">Historial</a>
+            
+            <form th:action="@{/logout}" method="post" style="display: contents;">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                <button type="submit" class="btn-cerrar">Cerrar sesión</button>
+            </form>
+        </div>
+
+        <!-- Contenedor principal -->
+        <div class="content-wrapper">
+            <!-- Loading state -->
+            <div id="loadingState" class="loading-state">
+                <i data-lucide="loader"></i>
+                <p>Cargando proyecto...</p>
+            </div>
+
+            <!-- Contenido del proyecto -->
+            <div id="proyectoContent" style="display: none;">
+                <!-- Header del proyecto -->
+                <div class="proyecto-header">
+                    <div class="proyecto-info">
+                        <div class="proyecto-color" id="proyectoColor"></div>
+                        <div>
+                            <h2 id="proyectoNombre">Nombre del Proyecto</h2>
+                            <p id="proyectoDescripcion" class="proyecto-descripcion">Descripción del proyecto</p>
+                        </div>
+                    </div>
+                    <div class="proyecto-actions">
+                        <button id="btnEliminarProyecto" class="btn-action btn-danger">
+                            <i data-lucide="trash-2"></i>
+                            Eliminar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Stats del proyecto -->
+                <div class="proyecto-stats">
+                    <div class="stat-item">
+                        <i data-lucide="calendar"></i>
+                        <div>
+                            <span class="stat-label">Fecha Inicio</span>
+                            <span class="stat-value" id="proyectoFechaInicio">-</span>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <i data-lucide="calendar-check"></i>
+                        <div>
+                            <span class="stat-label">Fecha Fin</span>
+                            <span class="stat-value" id="proyectoFechaFin">-</span>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <i data-lucide="list-checks"></i>
+                        <div>
+                            <span class="stat-label">Tareas</span>
+                            <span class="stat-value" id="proyectoTotalTareas">0</span>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <i data-lucide="activity"></i>
+                        <div>
+                            <span class="stat-label">Estado</span>
+                            <span class="stat-value" id="proyectoEstado">Activo</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lista de tareas del proyecto -->
+                <div class="tareas-section">
+                    <div class="tareas-header">
+                        <h3>Tareas del Proyecto</h3>
+                        <button id="btnAgregarTarea" class="btn-add-task">
+                            <i data-lucide="plus"></i>
+                            Agregar Tarea
+                        </button>
+                    </div>
+                    <div id="tareasContainer" class="tareas-container">
+                        <p class="empty-message">No hay tareas en este proyecto</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal para agregar tarea -->
+    <div id="modalAgregarTarea" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Agregar Tarea al Proyecto</h3>
+                <button class="modal-close" onclick="cerrarModal()">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <label for="selectTarea">Seleccionar Tarea</label>
+                <select id="selectTarea" class="modal-select">
+                    <option value="">Cargando tareas...</option>
+                </select>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="cerrarModal()">Cancelar</button>
+                <button class="btn" onclick="agregarTareaAlProyecto()">Agregar</button>
+            </div>
+        </div>
+    </div>
+    
+    <script th:src="@{/js/dark-mode.js}"></script>
+    <script th:src="@{/js/view-proyecto.js}"></script>
+    <script th:inline="javascript">
+        const proyectoId = /*[[${proyectoId}]]*/ null;
+    </script>
+    <script>
+        lucide.createIcons();
+
+        const toggleButton = document.getElementById('darkModeToggle');
+        const moonIcon = document.querySelector('.moon-icon');
+        const sunIcon = document.querySelector('.sun-icon');
+
+        function updateThemeIcon() {
+            if (document.body.classList.contains('dark-mode')) {
+                moonIcon.style.display = 'none';
+                sunIcon.style.display = 'block';
+            } else {
+                moonIcon.style.display = 'block';
+                sunIcon.style.display = 'none';
+            }
+        }
+
+        updateThemeIcon();
+        toggleButton.addEventListener('click', () => {
+            setTimeout(updateThemeIcon, 50);
+        });
+
+        const observer = new MutationObserver(updateThemeIcon);
+        observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+    </script>
+</body>
+</html>

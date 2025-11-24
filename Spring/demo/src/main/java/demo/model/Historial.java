@@ -49,6 +49,9 @@ public class Historial {
     @Column(name = "fecha_limite")
     private LocalDate fechaLimite;
     
+    @Column(name = "fecha_inicio")  // ← AGREGAR ESTE CAMPO
+    private LocalDate fechaInicio;
+    
     @PrePersist
     protected void onCreate() {
         fecha = LocalDateTime.now();
@@ -66,6 +69,7 @@ public class Historial {
             this.titulo = tarea.getTitulo();
             this.descripcion = tarea.getDescripcion();
             this.fechaLimite = tarea.getFechaLimite();
+            this.fechaInicio = tarea.getFechaInicio(); // ← AGREGAR AQUÍ
             if (tarea.getCategoria() != null) {
                 this.categoriaNombre = tarea.getCategoria().getNombre();
             }
@@ -99,4 +103,8 @@ public class Historial {
     
     public LocalDate getFechaLimite() { return fechaLimite; }
     public void setFechaLimite(LocalDate fechaLimite) { this.fechaLimite = fechaLimite; }
+    
+    // ← AGREGAR GETTER Y SETTER PARA FECHA INICIO
+    public LocalDate getFechaInicio() { return fechaInicio; }
+    public void setFechaInicio(LocalDate fechaInicio) { this.fechaInicio = fechaInicio; }
 }

@@ -327,6 +327,59 @@ main {
     transform: translateY(-1px);
 }
 
+/* Dark mode improvements for category cards */
+.dark-mode .category-card {
+    background-color: #1a2332;
+    border-color: #2d3748;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4);
+}
+
+.dark-mode .category-card:hover {
+    background-color: #1e2939;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+    border-color: #2d3748;
+}
+
+.dark-mode .btn-view {
+    background-color: rgba(59, 130, 246, 0.15);
+    color: #60a5fa;
+    border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.dark-mode .btn-view:hover {
+    background-color: #3b82f6;
+    color: #ffffff;
+    border-color: #3b82f6;
+}
+
+.dark-mode .btn-edit {
+    background-color: rgba(148, 163, 184, 0.1);
+    color: #cbd5e1;
+    border: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+.dark-mode .btn-edit:hover {
+    background-color: rgba(148, 163, 184, 0.25);
+    color: #f1f5f9;
+    border-color: rgba(148, 163, 184, 0.4);
+}
+
+.dark-mode .btn-delete {
+    background-color: rgba(239, 68, 68, 0.15);
+    color: #f87171;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.dark-mode .btn-delete:hover {
+    background-color: #ef4444;
+    color: #ffffff;
+    border-color: #ef4444;
+}
+
+.dark-mode .category-stats {
+    border-top-color: var(--border-primary);
+}
+
 /* Empty State */
 .empty-state {
     text-align: center;

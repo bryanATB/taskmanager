@@ -27,6 +27,8 @@
             <a th:href="@{/dashboard}" class="btns">Inicio</a>
             <a th:href="@{/create-task}" class="btns">Nueva Tarea</a>
             <a th:href="@{/categories}" class="btns">Categorías</a>
+            <a th:href="@{/proyectos}" class="btns">Proyectos</a>
+            <a th:href="@{/notificaciones}" class="btns">Notificaciones</
             <a th:href="@{/history}" class="btns">Historial</a>
             
             <form th:action="@{/logout}" method="post" style="display: contents;">
@@ -61,6 +63,27 @@
                         <option value="">Sin categoría</option>
                         <!-- Las opciones se cargarán dinámicamente -->
                     </select>
+                </div>
+
+                <div class="fecha" th:attr="data-creation=${task.fechaCreacion != null ? #temporals.format(task.fechaCreacion,'yyyy-MM-dd') : ''}">
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            var container = document.querySelector('.fecha[data-creation]');
+                            if (!container) return;
+                            var creation = container.getAttribute('data-creation');
+                            var start = document.getElementById('startDate');
+                            if (!start) return;
+                            if (creation) start.value = creation;
+                            // Make non-editable but keep value submitted: use readonly
+                            start.readOnly = true;
+                            start.setAttribute('aria-readonly', 'true');
+                            // Prevent datepicker focus on some browsers
+                            start.addEventListener('focus', function(e){ e.target.blur(); });
+                        });
+                    </script>
+                    <label for="startDate">Fecha de Inicio</label>
+                    <input class="ifecha" type="date" id="startDate" name="startDate"
+                           th:value="${task.fechaInicio != null ? #temporals.format(task.fechaInicio, 'yyyy-MM-dd') : ''}">
                 </div>
 
                 <div class="fecha">

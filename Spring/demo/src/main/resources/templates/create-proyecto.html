@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crear Proyecto - Gestión de Tareas</title>
+    <link rel="stylesheet" th:href="@{/css/create-proyecto.css}">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+</head>
+<body>
+    <main>
+        <!-- Sidebar lateral -->
+        <div class="lateral">
+            <button id="darkModeToggle" class="dark-mode-toggle" title="Cambiar tema">
+                <i data-lucide="moon" class="theme-icon moon-icon"></i>
+                <i data-lucide="sun" class="theme-icon sun-icon"></i>
+            </button>
+            
+            <h2><span th:text="${userName}">Usuario</span></h2>
+            
+            <a th:href="@{/dashboard}" class="btns">Inicio</a>
+            <a th:href="@{/create-task}" class="btns">Nueva Tarea</a>
+            <a th:href="@{/categories}" class="btns">Categorías</a>
+            <a th:href="@{/proyectos}" class="btns">Proyectos</a>
+            <a th:href="@{/notificaciones}" class="btns">Notificaciones</a>
+            <a th:href="@{/history}" class="btns">Historial</a>
+            
+            <form th:action="@{/logout}" method="post" style="display: contents;">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                <button type="submit" class="btn-cerrar">Cerrar sesión</button>
+            </form>
+        </div>
+
+        <!-- Contenedor principal -->
+        <div class="content-wrapper">
+            <!-- Header -->
+            <div class="header-section">
+                <div class="header-info">
+                    <a th:href="@{/proyectos}" class="btn-back">
+                        <i data-lucide="arrow-left"></i>
+                    </a>
+                    <div>
+                        <h2>Crear Nuevo Proyecto</h2>
+                        <p class="subtitle">Organiza tus tareas en proyectos</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Formulario -->
+            <div class="form-container">
+                <form id="formCrearProyecto" class="proyecto-form">
+                    <!-- Información básica -->
+                    <div class="form-section">
+                        <h3 class="section-title">Información Básica</h3>
+                        
+                        <div class="form-group">
+                            <label for="nombre" class="form-label">
+                                <i data-lucide="folder"></i>
+                                Nombre del Proyecto *
+                            </label>
+                            <input 
+                                type="text" 
+                                id="nombre" 
+                                name="nombre" 
+                                class="form-input" 
+                                placeholder="Ej: Desarrollo Web, Marketing Q4, etc."
+                                required
+                                maxlength="150">
+                            <span class="form-helper">Máximo 150 caracteres</span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="descripcion" class="form-label">
+                                <i data-lucide="align-left"></i>
+                                Descripción
+                            </label>
+                            <textarea 
+                                id="descripcion" 
+                                name="descripcion" 
+                                class="form-textarea" 
+                                rows="4"
+                                placeholder="Describe el objetivo y alcance del proyecto..."></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="color" class="form-label">
+                                <i data-lucide="palette"></i>
+                                Color del Proyecto
+                            </label>
+                            <div class="color-picker-container">
+                                <input 
+                                    type="color" 
+                                    id="color" 
+                                    name="color" 
+                                    class="form-color-input" 
+                                    value="#3b82f6">
+                                <div class="color-preview" id="colorPreview"></div>
+                                <span class="color-value" id="colorValue">#3b82f6</span>
+                            </div>
+                            <div class="color-presets">
+                                <button type="button" class="color-preset" data-color="#3b82f6" style="background: #3b82f6;"></button>
+                                <button type="button" class="color-preset" data-color="#10b981" style="background: #10b981;"></button>
+                                <button type="button" class="color-preset" data-color="#f59e0b" style="background: #f59e0b;"></button>
+                                <button type="button" class="color-preset" data-color="#ef4444" style="background: #ef4444;"></button>
+                                <button type="button" class="color-preset" data-color="#8b5cf6" style="background: #8b5cf6;"></button>
+                                <button type="button" class="color-preset" data-color="#ec4899" style="background: #ec4899;"></button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Fechas -->
+                    <div class="form-section">
+                        <h3 class="section-title">Planificación</h3>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="fechaInicio" class="form-label">
+                                    <i data-lucide="calendar"></i>
+                                    Fecha de Inicio
+                                </label>
+                                <input 
+                                    type="date" 
+                                    id="fechaInicio" 
+                                    name="fechaInicio" 
+                                    class="form-input">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="fechaFin" class="form-label">
+                                    <i data-lucide="calendar-check"></i>
+                                    Fecha de Fin
+                                </label>
+                                <input 
+                                    type="date" 
+                                    id="fechaFin" 
+                                    name="fechaFin" 
+                                    class="form-input">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Vista previa -->
+                    <div class="form-section">
+                        <h3 class="section-title">Vista Previa</h3>
+                        <div class="proyecto-preview">
+                            <div class="preview-color" id="previewColor"></div>
+                            <div class="preview-content">
+                                <h4 id="previewNombre">Nombre del Proyecto</h4>
+                                <p id="previewDescripcion">La descripción aparecerá aquí...</p>
+                                <div class="preview-dates">
+                                    <span id="previewFechaInicio"><i data-lucide="calendar"></i> Sin fecha de inicio</span>
+                                    <span id="previewFechaFin"><i data-lucide="calendar-check"></i> Sin fecha de fin</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Botones -->
+                    <div class="form-actions">
+                        <a th:href="@{/proyectos}" class="btn btn-secondary">
+                            <i data-lucide="x"></i>
+                            Cancelar
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i data-lucide="check"></i>
+                            Crear Proyecto
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <!-- Toast de notificación -->
+    <div id="toast" class="toast">
+        <div class="toast-content">
+            <i data-lucide="check-circle" class="toast-icon"></i>
+            <span id="toastMessage">Proyecto creado exitosamente</span>
+        </div>
+    </div>
+    
+    <script th:src="@{/js/dark-mode.js}"></script>
+    <script th:src="@{/js/create-proyecto.js}"></script>
+    <script>
+        lucide.createIcons();
+
+        const toggleButton = document.getElementById('darkModeToggle');
+        const moonIcon = document.querySelector('.moon-icon');
+        const sunIcon = document.querySelector('.sun-icon');
+
+        function updateThemeIcon() {
+            if (document.body.classList.contains('dark-mode')) {
+                moonIcon.style.display = 'none';
+                sunIcon.style.display = 'block';
+            } else {
+                moonIcon.style.display = 'block';
+                sunIcon.style.display = 'none';
+            }
+        }
+
+        updateThemeIcon();
+        toggleButton.addEventListener('click', () => {
+            setTimeout(updateThemeIcon, 50);
+        });
+
+        const observer = new MutationObserver(updateThemeIcon);
+        observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+    </script>
+</body>
+</html>

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proyectos - Gestión de Tareas</title>
+    <link rel="stylesheet" th:href="@{/css/proyectos.css}">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+</head>
+<body>  
+    <main>
+        <!-- Sidebar lateral -->
+        <div class="lateral">
+            <button id="darkModeToggle" class="dark-mode-toggle" title="Cambiar tema">
+                <i data-lucide="moon" class="theme-icon moon-icon"></i>
+                <i data-lucide="sun" class="theme-icon sun-icon"></i>
+            </button>
+            
+            <h2><span th:text="${userName}">Usuario</span></h2>
+            
+            <a th:href="@{/dashboard}" class="btns">Inicio</a>
+            <a th:href="@{/create-task}" class="btns">Nueva Tarea</a>
+            <a th:href="@{/categories}" class="btns">Categorías</a>
+            <a th:href="@{/proyectos}" class="btns">Proyectos</a>
+            <a th:href="@{/notificaciones}" class="btns">Notificaciones</a>
+            <a th:href="@{/history}" class="btns">Historial</a>
+            
+            <form th:action="@{/logout}" method="post" style="display: contents;">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                <button type="submit" class="btn-cerrar">Cerrar sesión</button>
+            </form>
+        </div>
+
+        <!-- Contenedor principal -->
+        <div class="content-wrapper">
+            <!-- Header -->
+            <div class="header-section">
+                <h2>Mis Proyectos</h2>
+                <a th:href="@{/create-proyecto}" class="btn-action btn-primary">
+                    <i data-lucide="plus"></i>
+                    Nuevo Proyecto
+                </a>
+            </div>
+            
+            <!-- Grid de proyectos -->
+            <div id="proyectosGrid" class="proyectos-grid">
+                <div class="loading-state">
+                    <i data-lucide="loader"></i>
+                    <p>Cargando proyectos...</p>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <script th:src="@{/js/dark-mode.js}"></script>
+    <script th:src="@{/js/proyectos.js}"></script>
+    <script>
+        lucide.createIcons();
+
+        const toggleButton = document.getElementById('darkModeToggle');
+        const moonIcon = document.querySelector('.moon-icon');
+        const sunIcon = document.querySelector('.sun-icon');
+
+        function updateThemeIcon() {
+            if (document.body.classList.contains('dark-mode')) {
+                moonIcon.style.display = 'none';
+                sunIcon.style.display = 'block';
+            } else {
+                moonIcon.style.display = 'block';
+                sunIcon.style.display = 'none';
+            }
+        }
+
+        updateThemeIcon();
+        toggleButton.addEventListener('click', () => {
+            setTimeout(updateThemeIcon, 50);
+        });
+
+        const observer = new MutationObserver(updateThemeIcon);
+        observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+    </script>
+</body>
+</html>
