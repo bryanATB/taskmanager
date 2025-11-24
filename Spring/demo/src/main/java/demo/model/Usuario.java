@@ -49,9 +49,6 @@ public class Usuario implements UserDetails {
     private List<Tarea> tareas;
     
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Comentario> comentarios;
-    
-    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Historial> historiales;
     
     @PrePersist
@@ -123,14 +120,6 @@ public class Usuario implements UserDetails {
     
     public void setTareas(List<Tarea> tareas) {
         this.tareas = tareas;
-    }
-    
-    public List<Comentario> getComentarios() {
-        return comentarios;
-    }
-    
-    public void setComentarios(List<Comentario> comentarios) {
-        this.comentarios = comentarios;
     }
     
     public List<Historial> getHistoriales() {

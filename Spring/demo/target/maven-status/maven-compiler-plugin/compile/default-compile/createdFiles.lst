@@ -2,14 +2,12 @@ demo\repository\HistorialRepository.class
 demo\repository\TareaRepository.class
 demo\repository\TaskRepository.class
 SpingBootFormApplication.class
-demo\repository\SubtareaRepository.class
 demo\model\Proyecto.class
 demo\model\Usuario.class
 demo\controller\CategoriaController.class
 demo\model\Tarea$Prioridad.class
 demo\repository\ProyectoRepository.class
 demo\service\NotificacionService.class
-demo\model\Subtarea.class
 demo\DemoApplication.class
 demo\model\TaskStatsDTO.class
 demo\controller\MainController.class
@@ -18,7 +16,6 @@ demo\DataLoader.class
 demo\controller\NotificacionController.class
 demo\controller\ProyectoController.class
 demo\model\Historial.class
-demo\repository\ComentarioRepository.class
 demo\model\Categoria.class
 demo\model\Tarea$Estado.class
 demo\service\CategoriaService.class
@@ -32,7 +29,6 @@ demo\model\Task.class
 demo\repository\CategoriaRepository.class
 demo\model\Proyecto$EstadoProyecto.class
 demo\repository\UserRepository.class
-demo\model\Comentario.class
 demo\repository\UsuarioRepository.class
 demo\controller\TaskController.class
 demo\model\Tarea.class

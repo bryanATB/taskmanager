@@ -59,12 +59,6 @@ public class Tarea {
     private LocalDateTime fechaCreacion;
     
     @OneToMany(mappedBy = "tarea", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Subtarea> subtareas;
-    
-    @OneToMany(mappedBy = "tarea", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Comentario> comentarios;
-    
-    @OneToMany(mappedBy = "tarea", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Historial> historiales;
     
     // ENUMS PÚBLICOS
@@ -170,22 +164,6 @@ public class Tarea {
     
     public void setFechaCreacion(LocalDateTime fechaCreacion) {
         this.fechaCreacion = fechaCreacion;
-    }
-    
-    public List<Subtarea> getSubtareas() {
-        return subtareas;
-    }
-    
-    public void setSubtareas(List<Subtarea> subtareas) {
-        this.subtareas = subtareas;
-    }
-    
-    public List<Comentario> getComentarios() {
-        return comentarios;
-    }
-    
-    public void setComentarios(List<Comentario> comentarios) {
-        this.comentarios = comentarios;
     }
     
     public List<Historial> getHistoriales() {
