@@ -33,6 +33,7 @@ import demo.repository.HistorialRepository;
 import demo.repository.TareaRepository;
 import demo.repository.UsuarioRepository;
 import demo.service.CategoriaService;
+import demo.service.TareaService;
 
 @Controller
 public class TaskController {
@@ -49,6 +50,9 @@ public class TaskController {
     
     @Autowired
     private UsuarioRepository usuarioRepository;
+
+    @Autowired
+    private TareaService tareaService;
 
     @PostMapping("/save-task")
     @ResponseBody
@@ -72,27 +76,13 @@ public class TaskController {
             // Convertir fechaLimite
             String dueDateStr = (String) payload.get("dueDate");
             if (dueDateStr != null && !dueDateStr.isEmpty()) {
-                try {
-                    String ds = dueDateStr.trim();
-                    String part = ds.length() >= 10 ? ds.substring(0, 10) : ds;
-                    LocalDate fechaLimite = LocalDate.parse(part);
-                    tarea.setFechaLimite(fechaLimite);
-                } catch (java.time.format.DateTimeParseException | IndexOutOfBoundsException e) {
-                    logger.warn("Error parseando fecha: " + dueDateStr, e);
-                }
+                tarea.setFechaLimite(LocalDate.parse(dueDateStr));
             }
             
             // Convertir fechaInicio
             String fechaInicioStr = (String) payload.get("startDate");
             if (fechaInicioStr != null && !fechaInicioStr.isEmpty()) {
-                try {
-                    String ds2 = fechaInicioStr.trim();
-                    String part2 = ds2.length() >= 10 ? ds2.substring(0, 10) : ds2;
-                    LocalDate fechaInicio = LocalDate.parse(part2);
-                    tarea.setFechaInicio(fechaInicio);
-                } catch (java.time.format.DateTimeParseException | IndexOutOfBoundsException e) {
-                    logger.warn("Error parseando fecha inicio: " + fechaInicioStr, e);
-                }
+                tarea.setFechaInicio(LocalDate.parse(fechaInicioStr));
             }
             
             // Convertir prioridad
@@ -161,9 +151,11 @@ public class TaskController {
     }
 
     // Método para convertir String a Estado
+    // Método para convertir String a Estado
     private Tarea.Estado parseEstado(String estadoStr) {
         if (estadoStr == null) return null;
         String s = estadoStr.trim();
+    
         // Intentar coincidencia directa con el nombre del enum
         try {
             return Tarea.Estado.valueOf(s);
@@ -174,10 +166,16 @@ public class TaskController {
             return Tarea.Estado.valueOf(s.replace(" ", "_"));
         } catch (IllegalArgumentException ignored) {}
 
-        // Igualar de forma insensible a mayúsculas/minúsculas y con/sin guion bajo
+        // Mapeo manual para casos especiales
+        String sUpper = s.toUpperCase();
+            if (sUpper.equals("INCOMPLETA") || sUpper.equals("VENCIDA")) {
+                return Tarea.Estado.Incompleta;
+        }
+
+        // Igualar de forma insensible a mayúsculas/minúsculas
         for (Tarea.Estado eVal : Tarea.Estado.values()) {
             String name = eVal.name();
-            if (name.equalsIgnoreCase(s) || name.replace("_", " ").equalsIgnoreCase(s) || name.replace("_", " ").equalsIgnoreCase(s.replace("_", " "))) {
+            if (name.equalsIgnoreCase(s) || name.replace("_", " ").equalsIgnoreCase(s)) {
                 return eVal;
             }
         }
@@ -279,6 +277,24 @@ public class TaskController {
         }
     }
 
+    @PostMapping("/api/tasks/marcar-vencidas")
+    @ResponseBody
+    public ResponseEntity<?> marcarTareasVencidas(Authentication auth) {
+        try {
+            int tareasActualizadas = tareaService.marcarTareasVencidasManual();
+        
+            return ResponseEntity.ok(Map.of(
+                "success", true,
+                "mensaje", tareasActualizadas + " tarea(s) marcadas como incompletas",
+                "cantidad", tareasActualizadas
+            ));
+        } catch (Exception e) {
+            logger.error("Error marcando tareas vencidas", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Map.of("error", "Error al marcar tareas vencidas"));
+        }
+    }
+
     @GetMapping("/tasks")
     @ResponseBody
     public List<Map<String, Object>> getTasks(Authentication auth) {
@@ -371,7 +387,7 @@ public class TaskController {
         model.addAttribute("task", t);
         model.addAttribute("isHistory", history);
 
-        return "view-task"; // ← tu HTML de arriba
+        return "view-task";
     }
 
     @GetMapping("/history")

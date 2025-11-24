@@ -329,7 +329,8 @@ function getStatusBadge(status) {
     const styles = {
         'COMPLETADA': 'background: #dcfce7; color: #16a34a; border: 1px solid #bbf7d0;',
         'EN_PROGRESO': 'background: #fef3c7; color: #d97706; border: 1px solid #fde68a;',
-        'PENDIENTE': 'background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0;'
+        'PENDIENTE': 'background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0;',
+        'INCOMPLETA': 'background: #fee2e2; color: #dc2626; border: 1px solid #fecaca;'  // ← NUEVO
     };
     
     const isDark = document.body.classList.contains('dark-mode');
@@ -337,13 +338,15 @@ function getStatusBadge(status) {
         const darkStyles = {
             'COMPLETADA': 'background: #14532d; color: #86efac; border: 1px solid #166534;',
             'EN_PROGRESO': 'background: #78350f; color: #fcd34d; border: 1px solid #92400e;',
-            'PENDIENTE': 'background: #334155; color: #cbd5e1; border: 1px solid #475569;'
+            'PENDIENTE': 'background: #334155; color: #cbd5e1; border: 1px solid #475569;',
+            'INCOMPLETA': 'background: #7f1d1d; color: #fca5a5; border: 1px solid #991b1b;'  // ← NUEVO
         };
         const style = darkStyles[status] || darkStyles['PENDIENTE'];
         const displayText = {
             'COMPLETADA': 'Completada',
             'EN_PROGRESO': 'En Progreso',
-            'PENDIENTE': 'Pendiente'
+            'PENDIENTE': 'Pendiente',
+            'INCOMPLETA': 'Incompleta'  // ← NUEVO
         };
         const text = displayText[status] || status;
         return `<span class="badge" style="${style}">${text}</span>`;
@@ -352,7 +355,8 @@ function getStatusBadge(status) {
     const displayText = {
         'COMPLETADA': 'Completada',
         'EN_PROGRESO': 'En Progreso',
-        'PENDIENTE': 'Pendiente'
+        'PENDIENTE': 'Pendiente',
+        'INCOMPLETA': 'Incompleta'  // ← NUEVO
     };
     
     const style = styles[status] || styles['PENDIENTE'];
@@ -433,6 +437,19 @@ function showNotification(message, type = 'info') {
 function formatDate(dateStr) {
     if (!dateStr) return 'Sin fecha';
     try {
+        const isoDateRegex = /^\d{4}-\d{2}-\d{2}$/;
+        if (isoDateRegex.test(dateStr)) {
+            const parts = dateStr.split('-');
+            const y = parseInt(parts[0], 10);
+            const m = parseInt(parts[1], 10) - 1; // monthIndex
+            const d = parseInt(parts[2], 10);
+            const date = new Date(y, m, d); // crea fecha en zona local
+            return date.toLocaleDateString('es-ES', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit'
+            });
+        }
         const date = new Date(dateStr);
         return date.toLocaleDateString('es-ES', {
             year: 'numeric',
@@ -554,6 +571,29 @@ function renderAlerts(proximas, vencidas) {
     
     if (typeof lucide !== 'undefined') {
         lucide.createIcons();
+    }
+}
+
+// Función para marcar tareas vencidas manualmente
+async function marcarTareasVencidas() {
+    try {
+        const response = await fetch('/api/tasks/marcar-vencidas', {
+            method: 'POST',
+            headers: makeHeaders()
+        });
+
+        const data = await response.json();
+        
+        if (response.ok) {
+            showNotification(data.mensaje, 'success');
+            loadTasks();
+            loadAlerts();
+        } else {
+            showNotification(data.error || 'Error al verificar tareas', 'error');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        showNotification('Error al verificar tareas vencidas', 'error');
     }
 }
 

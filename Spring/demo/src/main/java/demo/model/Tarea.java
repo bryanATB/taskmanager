@@ -73,7 +73,7 @@ public class Tarea {
     }
     
     public enum Estado {
-        Pendiente, En_progreso, Completada
+        Pendiente, En_progreso, Completada, Incompleta
     }
     
     @PrePersist

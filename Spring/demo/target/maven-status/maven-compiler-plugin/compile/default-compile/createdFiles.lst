@@ -24,6 +24,7 @@ demo\model\Tarea$Estado.class
 demo\service\CategoriaService.class
 demo\service\ProyectoService.class
 demo\model\User.class
+demo\service\TareaService.class
 demo\UserService.class
 demo\SecurityConfig.class
 demo\model\Notificacion.class

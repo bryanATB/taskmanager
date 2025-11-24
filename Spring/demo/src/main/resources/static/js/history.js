@@ -170,6 +170,19 @@ function getPriorityBadge(priority) {
 function formatDate(dateStr) {
     if (!dateStr) return 'Sin fecha';
     try {
+        const isoDateRegex = /^\d{4}-\d{2}-\d{2}$/;
+        if (isoDateRegex.test(dateStr)) {
+            const parts = dateStr.split('-');
+            const y = parseInt(parts[0], 10);
+            const m = parseInt(parts[1], 10) - 1; // monthIndex
+            const d = parseInt(parts[2], 10);
+            const date = new Date(y, m, d); // crea fecha en zona local
+            return date.toLocaleDateString('es-ES', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit'
+            });
+        }
         const date = new Date(dateStr);
         return date.toLocaleDateString('es-ES', {
             year: 'numeric',

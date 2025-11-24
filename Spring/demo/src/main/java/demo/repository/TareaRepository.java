@@ -25,7 +25,7 @@ public interface TareaRepository extends JpaRepository<Tarea, Integer> {
     // NUEVOS MÉTODOS PARA ESTADÍSTICAS
     
     // Contar tareas activas (no completadas)
-    @Query("SELECT COUNT(t) FROM Tarea t WHERE t.usuario.id = :usuarioId AND t.estado != 'Completada'")
+    @Query("SELECT COUNT(t) FROM Tarea t WHERE t.usuario.id = :usuarioId AND t.estado != 'Completada' AND t.estado != 'Incompleta'")
     long countActivasByUsuarioId(@Param("usuarioId") Integer usuarioId);
     
     // Contar tareas que vencen hoy
@@ -40,15 +40,15 @@ public interface TareaRepository extends JpaRepository<Tarea, Integer> {
     @Query("SELECT COUNT(h) FROM Historial h WHERE h.usuario.id = :usuarioId AND h.accion = 'Tarea completada' AND DATE(h.fecha) = :fecha")
     long countCompletadasEnFecha(@Param("usuarioId") Integer usuarioId, @Param("fecha") LocalDate fecha);
     
-    // Buscar tareas próximas a vencer (próximos 3 días)
-    @Query("SELECT t FROM Tarea t WHERE t.usuario.id = :usuarioId AND t.estado != 'Completada' AND t.fechaLimite BETWEEN :desde AND :hasta ORDER BY t.fechaLimite ASC")
+    // Buscar tareas próximas a vencer (solo activas)
+    @Query("SELECT t FROM Tarea t WHERE t.usuario.id = :usuarioId AND t.estado != 'Completada' AND t.estado != 'Incompleta' AND t.fechaLimite BETWEEN :desde AND :hasta ORDER BY t.fechaLimite ASC")
     List<Tarea> findProximasAVencer(
         @Param("usuarioId") Integer usuarioId, 
         @Param("desde") LocalDate desde, 
         @Param("hasta") LocalDate hasta
     );
-    
-    // Buscar tareas vencidas
-    @Query("SELECT t FROM Tarea t WHERE t.usuario.id = :usuarioId AND t.estado != 'Completada' AND t.fechaLimite < :fecha ORDER BY t.fechaLimite ASC")
+
+    // Buscar tareas incompletas
+    @Query("SELECT t FROM Tarea t WHERE t.usuario.id = :usuarioId AND t.estado = 'Incompleta' ORDER BY t.fechaLimite ASC")
     List<Tarea> findVencidas(@Param("usuarioId") Integer usuarioId, @Param("fecha") LocalDate fecha);
 }
