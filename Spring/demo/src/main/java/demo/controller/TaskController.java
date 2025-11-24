@@ -73,9 +73,11 @@ public class TaskController {
             String dueDateStr = (String) payload.get("dueDate");
             if (dueDateStr != null && !dueDateStr.isEmpty()) {
                 try {
-                    LocalDate fechaLimite = LocalDate.parse(dueDateStr.substring(0, 10));
+                    String ds = dueDateStr.trim();
+                    String part = ds.length() >= 10 ? ds.substring(0, 10) : ds;
+                    LocalDate fechaLimite = LocalDate.parse(part);
                     tarea.setFechaLimite(fechaLimite);
-                } catch (Exception e) {
+                } catch (java.time.format.DateTimeParseException | IndexOutOfBoundsException e) {
                     logger.warn("Error parseando fecha: " + dueDateStr, e);
                 }
             }
@@ -84,9 +86,11 @@ public class TaskController {
             String fechaInicioStr = (String) payload.get("startDate");
             if (fechaInicioStr != null && !fechaInicioStr.isEmpty()) {
                 try {
-                    LocalDate fechaInicio = LocalDate.parse(fechaInicioStr.substring(0, 10));
+                    String ds2 = fechaInicioStr.trim();
+                    String part2 = ds2.length() >= 10 ? ds2.substring(0, 10) : ds2;
+                    LocalDate fechaInicio = LocalDate.parse(part2);
                     tarea.setFechaInicio(fechaInicio);
-                } catch (Exception e) {
+                } catch (java.time.format.DateTimeParseException | IndexOutOfBoundsException e) {
                     logger.warn("Error parseando fecha inicio: " + fechaInicioStr, e);
                 }
             }
@@ -97,7 +101,7 @@ public class TaskController {
                 try {
                     Tarea.Prioridad prioridad = parsePrioridad(prioridadStr);
                     tarea.setPrioridad(prioridad != null ? prioridad : Tarea.Prioridad.Media);
-                } catch (Exception e) {
+                } catch (IllegalArgumentException | IndexOutOfBoundsException e) {
                     tarea.setPrioridad(Tarea.Prioridad.Media);
                 }
             }
@@ -108,7 +112,7 @@ public class TaskController {
                 try {
                     Tarea.Estado estado = parseEstado(estadoStr);
                     tarea.setEstado(estado != null ? estado : Tarea.Estado.Pendiente);
-                } catch (Exception e) {
+                } catch (IllegalArgumentException | IndexOutOfBoundsException e) {
                     tarea.setEstado(Tarea.Estado.Pendiente);
                 }
             }
@@ -120,8 +124,8 @@ public class TaskController {
                     Integer categoriaId = Integer.parseInt(categoriaIdObj.toString());
                     categoriaService.getCategoriaById(categoriaId, managedUser)
                         .ifPresent(tarea::setCategoria);
-                } catch (Exception e) {
-                    logger.warn("Error asignando categoría", e);
+                } catch (NumberFormatException e) {
+                    logger.warn("Error asignando categoría - id no numérico: {}", categoriaIdObj, e);
                 }
             }
             
@@ -132,7 +136,7 @@ public class TaskController {
             historialRepository.save(new Historial(saved, managedUser, "Tarea creada"));
             
             return ResponseEntity.ok(convertTareaToMap(saved));
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             logger.error("Error guardando tarea", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(Map.of("error", "Error al guardar la tarea: " + e.getMessage()));
@@ -143,8 +147,9 @@ public class TaskController {
     private Tarea.Prioridad parsePrioridad(String prioridadStr) {
         if (prioridadStr == null) return null;
         try {
-            return Tarea.Prioridad.valueOf(prioridadStr.trim().substring(0, 1).toUpperCase() + prioridadStr.trim().substring(1).toLowerCase());
-        } catch (Exception e) {
+            String t = prioridadStr.trim();
+            return Tarea.Prioridad.valueOf(t.substring(0, 1).toUpperCase() + t.substring(1).toLowerCase());
+        } catch (IllegalArgumentException | IndexOutOfBoundsException e) {
             // Si falla, intenta comparar manualmente
             for (Tarea.Prioridad p : Tarea.Prioridad.values()) {
                 if (p.name().equalsIgnoreCase(prioridadStr)) {
@@ -162,12 +167,12 @@ public class TaskController {
         // Intentar coincidencia directa con el nombre del enum
         try {
             return Tarea.Estado.valueOf(s);
-        } catch (Exception ignored) {}
+        } catch (IllegalArgumentException ignored) {}
 
         // Reemplazar espacios por guiones bajos y volver a intentar
         try {
             return Tarea.Estado.valueOf(s.replace(" ", "_"));
-        } catch (Exception ignored) {}
+        } catch (IllegalArgumentException ignored) {}
 
         // Igualar de forma insensible a mayúsculas/minúsculas y con/sin guion bajo
         for (Tarea.Estado eVal : Tarea.Estado.values()) {
@@ -227,10 +232,12 @@ public class TaskController {
             String dueDateStr = params.get("dueDate");
             if (dueDateStr != null && !dueDateStr.isEmpty()) {
                 try {
-                    LocalDate fechaLimite = LocalDate.parse(dueDateStr.substring(0, 10));
+                    String ds = dueDateStr.trim();
+                    String part = ds.length() >= 10 ? ds.substring(0, 10) : ds;
+                    LocalDate fechaLimite = LocalDate.parse(part);
                     tarea.setFechaLimite(fechaLimite);
-                } catch (Exception e) {
-                    logger.warn("Error parseando fecha: " + dueDateStr);
+                } catch (java.time.format.DateTimeParseException | IndexOutOfBoundsException e) {
+                    logger.warn("Error parseando fecha: " + dueDateStr, e);
                 }
             }
             
@@ -256,8 +263,8 @@ public class TaskController {
                 try {
                     Integer categoriaId = Integer.parseInt(categoriaIdStr);
                     categoriaService.getCategoriaById(categoriaId, managedUser).ifPresent(tarea::setCategoria);
-                } catch (Exception e) {
-                    logger.warn("Error parseando categoryId desde formulario: " + categoriaIdStr, e);
+                } catch (NumberFormatException e) {
+                    logger.warn("Error parseando categoryId desde formulario - id no numérico: {}", categoriaIdStr, e);
                 }
             }
             
@@ -265,7 +272,7 @@ public class TaskController {
             tareaRepository.save(tarea);
             redirectAttributes.addFlashAttribute("success", "Tarea guardada correctamente");
             return "redirect:/dashboard";
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             logger.error("Error guardando tarea", e);
             redirectAttributes.addFlashAttribute("error", "Error guardando la tarea: " + e.getMessage());
             return "redirect:/create-task";
@@ -442,7 +449,7 @@ public class TaskController {
             historialRepository.save(new Historial(tarea, usuario, "Tarea restaurada"));
             
             return ResponseEntity.ok(Map.of("success", true, "message", "Tarea restaurada al dashboard"));
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             logger.error("Error restaurando tarea", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(Map.of("error", "Error al restaurar la tarea"));
@@ -522,10 +529,12 @@ public class TaskController {
             String dueDateStr = (String) payload.get("dueDate");
             if (dueDateStr != null && !dueDateStr.isEmpty()) {
                 try {
-                    LocalDate fechaLimite = LocalDate.parse(dueDateStr.substring(0, 10));
+                    String ds3 = dueDateStr.trim();
+                    String part3 = ds3.length() >= 10 ? ds3.substring(0, 10) : ds3;
+                    LocalDate fechaLimite = LocalDate.parse(part3);
                     tarea.setFechaLimite(fechaLimite);
-                } catch (Exception e) {
-                    logger.warn("Error parseando fecha: " + dueDateStr);
+                } catch (java.time.format.DateTimeParseException | IndexOutOfBoundsException e) {
+                    logger.warn("Error parseando fecha: " + dueDateStr, e);
                 }
             }
             
@@ -536,7 +545,7 @@ public class TaskController {
                     if (prioridad != null) {
                         tarea.setPrioridad(prioridad);
                     }
-                } catch (Exception e) {
+                } catch (IllegalArgumentException | IndexOutOfBoundsException e) {
                     // mantener prioridad existente
                 }
             }
@@ -548,7 +557,7 @@ public class TaskController {
                     if (estado != null) {
                         tarea.setEstado(estado);
                     }
-                } catch (Exception e) {
+                } catch (IllegalArgumentException | IndexOutOfBoundsException e) {
                     // mantener estado existente
                 }
             }
@@ -563,8 +572,8 @@ public class TaskController {
                         Integer categoriaId = Integer.parseInt(categoriaIdObj.toString());
                         categoriaService.getCategoriaById(categoriaId, usuario)
                             .ifPresent(tarea::setCategoria);
-                    } catch (Exception e) {
-                        logger.warn("Error actualizando categoría", e);
+                    } catch (NumberFormatException e) {
+                        logger.warn("Error actualizando categoría - id no numérico: {}", categoriaIdObj, e);
                     }
                 }
             }
@@ -584,7 +593,7 @@ public class TaskController {
             }
             
             return ResponseEntity.ok(convertTareaToMap(saved));
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             logger.error("Error actualizando tarea", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(Map.of("error", "Error al actualizar la tarea: " + e.getMessage()));
