@@ -68,19 +68,16 @@
                     <div class="stat-label">Prioridad Alta</div>
                 </div>
             </div>
-
-            <div style="margin-bottom: 20px;">
-                <button onclick="marcarTareasVencidas()" class="btn-table btn-edit" style="padding: 10px 20px;">
-                    🔄 Verificar Tareas Vencidas
-                </button>
-            </div>
             
             <!-- Sección de tareas -->
             <div class="menu">
                 <div class="menu-header">
                     <h3>Mis Tareas Activas</h3>
-                    <div class="buscar">
+                    <div class="buscar" style="display: flex; gap: 10px; align-items: center;">
                         <input type="text" class="b search-input" id="searchTasks" placeholder="Buscar por nombre o categoría...">
+                        <button onclick="marcarTareasVencidas()" class="btn-table btn-edit" style="padding: 10px; flex-shrink: 0;" title="Verificar Tareas Vencidas">
+                            <i data-lucide="refresh-cw"></i>
+                        </button>
                     </div>
                 </div>
                 <table>
