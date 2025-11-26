@@ -37,7 +37,7 @@ public interface TareaRepository extends JpaRepository<Tarea, Integer> {
     long countPrioridadAltaByUsuarioId(@Param("usuarioId") Integer usuarioId);
     
     // Contar tareas completadas en una fecha específica
-    @Query("SELECT COUNT(h) FROM Historial h WHERE h.usuario.id = :usuarioId AND h.accion = 'Tarea completada' AND DATE(h.fecha) = :fecha")
+    @Query("SELECT COUNT(h) FROM Historial h WHERE h.usuario.id = :usuarioId AND h.titulo IS NOT NULL AND DATE(h.fecha) = :fecha")
     long countCompletadasEnFecha(@Param("usuarioId") Integer usuarioId, @Param("fecha") LocalDate fecha);
     
     // Buscar tareas próximas a vencer (solo activas)

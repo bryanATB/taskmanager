@@ -122,8 +122,8 @@ public class TaskController {
             tarea.setUsuario(managedUser);
             Tarea saved = tareaRepository.save(tarea);
             
-            // Crear registro en historial
-            historialRepository.save(new Historial(saved, managedUser, "Tarea creada"));
+            // Crear registro en historial (sin campo 'accion')
+            historialRepository.save(new Historial(saved, managedUser));
             
             return ResponseEntity.ok(convertTareaToMap(saved));
         } catch (RuntimeException e) {
@@ -413,9 +413,8 @@ public class TaskController {
     @ResponseBody
     public List<Map<String, Object>> getCompletedTasks(Authentication auth) {
         Usuario usuario = (Usuario) auth.getPrincipal();
-        List<Historial> historial = historialRepository.findByUsuarioIdAndAccionOrderByFechaDesc(
-            usuario.getId(), 
-            "Tarea completada"
+        List<Historial> historial = historialRepository.findByUsuarioIdAndTituloIsNotNullOrderByFechaDesc(
+            usuario.getId()
         );
         
         return historial.stream().map(h -> {
@@ -452,17 +451,16 @@ public class TaskController {
             tareaRepository.save(tarea);
             
             // Eliminar los registros de "Tarea completada" del historial
-            List<Historial> historialesCompletados = historialRepository.findByTareaIdAndAccion(
-                tarea.getId(), 
-                "Tarea completada"
+            List<Historial> historialesCompletados = historialRepository.findByTareaIdAndTituloIsNotNull(
+                tarea.getId()
             );
             
             if (!historialesCompletados.isEmpty()) {
                 historialRepository.deleteAll(historialesCompletados);
             }
             
-            // Registrar la restauración en el historial (opcional)
-            historialRepository.save(new Historial(tarea, usuario, "Tarea restaurada"));
+            // Registrar la restauración en el historial (sin campo 'accion')
+            historialRepository.save(new Historial(tarea, usuario));
             
             return ResponseEntity.ok(Map.of("success", true, "message", "Tarea restaurada al dashboard"));
         } catch (RuntimeException e) {
@@ -516,8 +514,8 @@ public class TaskController {
         Optional<Tarea> tarea = tareaRepository.findById(id);
         
         if (tarea.isPresent() && tarea.get().getUsuario().getId().equals(usuario.getId())) {
-            // Registrar eliminación en historial antes de borrar
-            historialRepository.save(new Historial(tarea.get(), usuario, "Tarea eliminada"));
+            // Registrar eliminación en historial antes de borrar (sin campo 'accion')
+            historialRepository.save(new Historial(tarea.get(), usuario));
             tareaRepository.deleteById(id);
             return Map.of("success", true);
         }
@@ -537,7 +535,7 @@ public class TaskController {
             }
             
             Tarea tarea = existingTarea.get();
-            Tarea.Estado estadoAnterior = tarea.getEstado();
+            
             
             tarea.setTitulo((String) payload.get("title"));
             tarea.setDescripcion((String) payload.get("description"));
@@ -596,17 +594,10 @@ public class TaskController {
             
             Tarea saved = tareaRepository.save(tarea);
             
-            // Si la tarea se completó, guardar en historial
-            if (saved.getEstado() == Tarea.Estado.Completada && estadoAnterior != Tarea.Estado.Completada) {
-                historialRepository.save(new Historial(saved, usuario, "Tarea completada"));
-            } else {
-                // Registrar otros cambios
-                String accion = "Tarea actualizada";
-                if (estadoAnterior != saved.getEstado()) {
-                    accion = "Estado cambiado de " + estadoAnterior + " a " + saved.getEstado();
-                }
-                historialRepository.save(new Historial(saved, usuario, accion));
-            }
+            // Guardar en historial. Los datos relevantes de la tarea completada
+            // se almacenan automáticamente en el constructor cuando el estado
+            // de la tarea es `Completada`.
+            historialRepository.save(new Historial(saved, usuario));
             
             return ResponseEntity.ok(convertTareaToMap(saved));
         } catch (RuntimeException e) {

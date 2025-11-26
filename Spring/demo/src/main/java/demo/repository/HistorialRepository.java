@@ -18,9 +18,9 @@ public interface HistorialRepository extends JpaRepository<Historial, Integer> {
     // Buscar historial por tarea ordenado por fecha
     List<Historial> findByTareaIdOrderByFechaDesc(Integer tareaId);
     
-    // Buscar solo tareas completadas por usuario
-    List<Historial> findByUsuarioIdAndAccionOrderByFechaDesc(Integer usuarioId, String accion);
+    // Buscar solo tareas completadas por usuario (las completadas tienen `titulo` no nulo)
+    List<Historial> findByUsuarioIdAndTituloIsNotNullOrderByFechaDesc(Integer usuarioId);
 
-    //Buscar por tarea y acción específica
-    List<Historial> findByTareaIdAndAccion(Integer tareaId, String accion);
+    // Buscar historiales de completadas para una tarea
+    List<Historial> findByTareaIdAndTituloIsNotNull(Integer tareaId);
 }

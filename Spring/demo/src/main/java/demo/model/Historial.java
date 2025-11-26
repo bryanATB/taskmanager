@@ -30,9 +30,11 @@ public class Historial {
     @JoinColumn(name = "usuario_id", nullable = false)
     private Usuario usuario;
     
-    @Column(nullable = false, length = 255)
-    private String accion;
-    
+    // Campo 'accion' en DB: se restaura en la entidad para mantener compatibilidad
+    // con la tabla. Se rellena con una cadena vacía o con la acción cuando aplique.
+    @Column(name = "accion", nullable = false, length = 255)
+    private String accion = "";
+
     @Column(nullable = false)
     private LocalDateTime fecha;
     
@@ -58,21 +60,25 @@ public class Historial {
     }
     
     public Historial() {}
-    
-    public Historial(Tarea tarea, Usuario usuario, String accion) {
+
+    public Historial(Tarea tarea, Usuario usuario) {
         this.tarea = tarea;
         this.usuario = usuario;
-        this.accion = accion;
-        
-        // Si la acción es "Tarea completada", guardar los datos
-        if (accion != null && accion.equals("Tarea completada")) {
+
+        // Si la tarea está en estado "Completada", guardamos los datos relevantes
+        if (tarea != null && tarea.getEstado() == Tarea.Estado.Completada) {
             this.titulo = tarea.getTitulo();
             this.descripcion = tarea.getDescripcion();
             this.fechaLimite = tarea.getFechaLimite();
-            this.fechaInicio = tarea.getFechaInicio(); // ← AGREGAR AQUÍ
+            this.fechaInicio = tarea.getFechaInicio();
             if (tarea.getCategoria() != null) {
                 this.categoriaNombre = tarea.getCategoria().getNombre();
             }
+            // Mantener compatibilidad: marcar acción como completada
+            this.accion = "Tarea completada";
+        } else {
+            // Valor por defecto no nulo para evitar errores si la columna es NOT NULL
+            this.accion = "";
         }
     }
     
